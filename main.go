@@ -5,24 +5,13 @@ import "log"
 import "os"
 import "bufio"
 import "runtime"
-
-// const root string = "/Users/bramleenders/Downloads/reddit_data/";
-const root string = "/Volumes/Gollum/reddit_data/"
-
-var countTotal = make(chan int64)
-var countDeletedAuthors = make(chan int64)
-var countErrors = make(chan int64)
+import "compress/bzip2"
 
 func main() {
-	var NUM_READERS = runtime.NumCPU()
-	log.Println("Number of readers:", NUM_READERS)
+	var numReaders = runtime.NumCPU()
+	log.Println("Number of readers:", numReaders)
 
 	runtime.GOMAXPROCS(runtime.NumCPU() + 1)
-
-	// The hashmap we're gonna store our stuff in:
-	var m map[string]int64
-	m = make(map[string]int64)
-
 
 	files := []string{
 		"2007/RC_2007-10",
@@ -42,36 +31,45 @@ func main() {
 		"2008/RC_2008-11",
 		"2008/RC_2008-12",
 
-		"2009/RC_2009-01",
-		"2009/RC_2009-02",
-		"2009/RC_2009-03",
-		"2009/RC_2009-04",
-		"2009/RC_2009-05",
-		"2009/RC_2009-06",
-		"2009/RC_2009-07",
-		"2009/RC_2009-08",
-		"2009/RC_2009-09",
-		"2009/RC_2009-10",
-		"2009/RC_2009-11",
-		"2009/RC_2009-12",
+		// "2009/RC_2009-01",
+		// "2009/RC_2009-02",
+		// "2009/RC_2009-03",
+		// "2009/RC_2009-04",
+		// "2009/RC_2009-05",
+		// "2009/RC_2009-06",
+		// "2009/RC_2009-07",
+		// "2009/RC_2009-08",
+		// "2009/RC_2009-09",
+		// "2009/RC_2009-10",
+		// "2009/RC_2009-11",
+		// "2009/RC_2009-12",
 
-		"2010/RC_2010-01",
-		"2010/RC_2010-02",
-		"2010/RC_2010-03",
-		"2010/RC_2010-04",
-		"2010/RC_2010-05",
-		"2010/RC_2010-06",
-		"2010/RC_2010-07",
-		"2010/RC_2010-08",
-		"2010/RC_2010-09",
-		"2010/RC_2010-10",
-		"2010/RC_2010-11",
-		"2010/RC_2010-12",
+		// "2010/RC_2010-01",
+		// "2010/RC_2010-02",
+		// "2010/RC_2010-03",
+		// "2010/RC_2010-04",
+		// "2010/RC_2010-05",
+		// "2010/RC_2010-06",
+		// "2010/RC_2010-07",
+		// "2010/RC_2010-08",
+		// "2010/RC_2010-09",
+		// "2010/RC_2010-10",
+		// "2010/RC_2010-11",
+		// "2010/RC_2010-12",
 	}
 
+	// Let's start reading/decompressing/parsing/...
+	process(files, "/Volumes/Gollum/reddit_data/", numReaders)
+}
+
+var countTotal = make(chan int64)
+var countDeletedAuthors = make(chan int64)
+var countErrors = make(chan int64)
+
+func process(files []string, root string, numReaders int) {
 	// Init a concurrenty limiter
-	blocker := make(chan int, NUM_READERS)
-	for i := 0; i < NUM_READERS; i++ {
+	blocker := make(chan int, numReaders)
+	for i := 0; i < numReaders; i++ {
 		blocker <- 1
 	}
 
@@ -86,11 +84,11 @@ func main() {
 		// This blocks
 		<-blocker
 
-		go readFile(&m, root + file, blocker)
+		go readFile(root + file + ".bz2", blocker)
 	}
 
 	// Block until everything finished.
-	for i := 0; i < NUM_READERS; i++ {
+	for i := 0; i < numReaders; i++ {
 		<-blocker
 	}
 
@@ -118,14 +116,16 @@ func keepScore(description string, scores <-chan int64, finished <-chan chan int
     }
 }
 
-func readFile(m *map[string]int64, file string, finished chan<- int) {
+func readFile(file string, finished chan<- int) {
 	// Don't forget to let the others know we finished here
 	defer func() {
         finished <- 1
     }()
 
-	inFile, err := os.Open(file)
-	defer inFile.Close()
+	fileReader, err := os.Open(file)
+	defer fileReader.Close()
+
+	decompressionReader := bzip2.NewReader(fileReader)
 
 	if err != nil {
 		log.Println("Error reading file", file, ":", err)
@@ -134,7 +134,7 @@ func readFile(m *map[string]int64, file string, finished chan<- int) {
 	// No error -> continue!
 	log.Println("Reading file", file)
 
-	scanner := bufio.NewScanner(inFile)
+	scanner := bufio.NewScanner(decompressionReader)
 	scanner.Split(bufio.ScanLines)
 
 	subtotal := 0
@@ -144,7 +144,7 @@ func readFile(m *map[string]int64, file string, finished chan<- int) {
 	for scanner.Scan() {
 		subtotal++
 		// log.Println(scanner.Text())
-		authorDeleted, err := parse(m, scanner.Text())
+		authorDeleted, err := parse(scanner.Text())
 
 		if err != nil {
 			subTotErrors++
@@ -183,7 +183,7 @@ type Entry struct {
 }
 
 
-func parse(m *map[string]int64, line string) (bool, error) {
+func parse(line string) (bool, error) {
 	var entry = &Entry{}
     err := json.Unmarshal([]byte(line), &entry)
 
