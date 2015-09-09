@@ -1,12 +1,13 @@
 package main
 
+import "bufio"
+import "compress/bzip2"
 import "encoding/json"
+import "flag"
+import "io"
 import "log"
 import "os"
-import "bufio"
 import "runtime"
-import "compress/bzip2"
-import "flag"
 
 // Whether or not the files are zipped with bzip2
 // Reading and parsing compressed data gives a ~30% overhead compared to uncompressed data
@@ -66,45 +67,44 @@ func main() {
 		"2008/RC_2008-11",
 		"2008/RC_2008-12",
 
-		// "2009/RC_2009-01",
-		// "2009/RC_2009-02",
-		// "2009/RC_2009-03",
-		// "2009/RC_2009-04",
-		// "2009/RC_2009-05",
-		// "2009/RC_2009-06",
-		// "2009/RC_2009-07",
-		// "2009/RC_2009-08",
-		// "2009/RC_2009-09",
-		// "2009/RC_2009-10",
-		// "2009/RC_2009-11",
-		// "2009/RC_2009-12",
+		"2009/RC_2009-01",
+		"2009/RC_2009-02",
+		"2009/RC_2009-03",
+		"2009/RC_2009-04",
+		"2009/RC_2009-05",
+		"2009/RC_2009-06",
+		"2009/RC_2009-07",
+		"2009/RC_2009-08",
+		"2009/RC_2009-09",
+		"2009/RC_2009-10",
+		"2009/RC_2009-11",
+		"2009/RC_2009-12",
 
-		// "2010/RC_2010-01",
-		// "2010/RC_2010-02",
-		// "2010/RC_2010-03",
-		// "2010/RC_2010-04",
-		// "2010/RC_2010-05",
-		// "2010/RC_2010-06",
-		// "2010/RC_2010-07",
-		// "2010/RC_2010-08",
-		// "2010/RC_2010-09",
-		// "2010/RC_2010-10",
-		// "2010/RC_2010-11",
-		// "2010/RC_2010-12",
+		"2010/RC_2010-01",
+		"2010/RC_2010-02",
+		"2010/RC_2010-03",
+		"2010/RC_2010-04",
+		"2010/RC_2010-05",
+		"2010/RC_2010-06",
+		"2010/RC_2010-07",
+		"2010/RC_2010-08",
+		"2010/RC_2010-09",
+		"2010/RC_2010-10",
+		"2010/RC_2010-11",
+		"2010/RC_2010-12",
 
-		// "2011/RC_2011-01",
-		// "2011/RC_2011-02",
-		// "2011/RC_2011-03",
-		// "2011/RC_2011-04",
-		// "2011/RC_2011-05",
-		// "2011/RC_2011-06",
-		// "2011/RC_2011-07",
-		// "2011/RC_2011-08",
-		// "2011/RC_2011-09",
-		// "2011/RC_2011-10",
-		// "2011/RC_2011-11",
-		// "2011/RC_2011-12",
-
+		"2011/RC_2011-01",
+		"2011/RC_2011-02",
+		"2011/RC_2011-03",
+		"2011/RC_2011-04",
+		"2011/RC_2011-05",
+		"2011/RC_2011-06",
+		"2011/RC_2011-07",
+		"2011/RC_2011-08",
+		"2011/RC_2011-09",
+		"2011/RC_2011-10",
+		"2011/RC_2011-11",
+		"2011/RC_2011-12",
 	}
 
 	for k, v := range files {
@@ -127,7 +127,6 @@ func exists(path string) (bool, error) {
 }
 
 var countTotal = make(chan int64)
-var countDeletedAuthors = make(chan int64)
 var countErrors = make(chan int64)
 
 // Distributes all files to the readers.
@@ -145,14 +144,16 @@ func process(files []string, numReaders int) {
 	finished := make(chan chan int)
 
 	go keepScore("Total", countTotal, finished)
-	go keepScore("Posts with deleted authors", countDeletedAuthors, finished)
 	go keepScore("Errors", countErrors, finished)
 
-	for _, file := range files {
+	// Loop over the files in reverse order
+	// We start with the biggest files
+	// Should give a more equal finishing time
+	for i := len(files)-1; i >= 0; i-- {
 		// This blocks
 		<-blocker
 
-		go readFile(file, blocker)
+		go readFile(files[i], blocker)
 	}
 
 	// Block until everything finished.
@@ -161,7 +162,7 @@ func process(files []string, numReaders int) {
 		log.Println("Terminated reader", i, "-> no more files to read")
 	}
 
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 2; i++ {
 		w := make(chan int)
 		finished <- w
 
@@ -182,6 +183,7 @@ func keepScore(description string, scores <-chan int64, finished <-chan chan int
         case c := <-finished:
         	log.Println(description, "->", count)
         	c <- 1
+        	return
         case score := <-scores:
             count += score
         }
@@ -196,17 +198,24 @@ func readFile(file string, finished chan<- int) {
 
 	fileReader, err := os.Open(file)
 	defer fileReader.Close()
-
-	decompressionReader := bzip2.NewReader(fileReader)
-
 	if err != nil {
 		log.Println("Error reading file", file, ":", err)
 		return
 	}
+
+	// If we're handling zipped data, add a bzip2 decompressor in between
+	var reader io.Reader
+	if isZipped {
+		reader = bzip2.NewReader(fileReader)
+	} else {
+		reader = fileReader
+	}
+
 	// No error -> continue!
 	log.Println("Reading file", file)
 
-	scanner := bufio.NewScanner(decompressionReader)
+	// Scan file contents
+	scanner := bufio.NewScanner(reader)
 	scanner.Split(bufio.ScanLines)
 
 	numLines := int64(0)
@@ -220,9 +229,9 @@ func readFile(file string, finished chan<- int) {
 
 		line := scanner.Bytes()
 
-    	err := json.Unmarshal(line, &entry)
+		err := json.Unmarshal(line, &entry)
 
-	    if err != nil {
+		if err != nil {
 	    	log.Println(err)
 	    	log.Println(line)
 	    	log.Println("\n")
