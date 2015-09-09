@@ -6,12 +6,47 @@ import "os"
 import "bufio"
 import "runtime"
 import "compress/bzip2"
+import "flag"
+
+// Whether or not the files are zipped with bzip2
+// Reading and parsing compressed data gives a ~30% overhead compared to uncompressed data
+var isZipped bool
+
+// Number of simultanious readers
+var numReaders int
+var dataRoot string
 
 func main() {
-	var numReaders = runtime.NumCPU()
-	log.Println("Number of readers:", numReaders)
+	flag.StringVar(&dataRoot, "data", "", "The ")
+	flag.IntVar(&numReaders, "readers", runtime.NumCPU(), "number of simultanious readers (default is NumCPU)")
+	flag.BoolVar(&isZipped, "zipped", true, "whether the files are zipped (with bzip2)")
 
-	runtime.GOMAXPROCS(runtime.NumCPU() + 1)
+	flag.Parse()
+
+	if dataRoot == "" {
+		log.Println("No data folder given: I need data!")
+		log.Println("Use the -data flag to provide the absolute path to the files")
+		os.Exit(1)
+	}
+
+	existingRoot, _ := exists(dataRoot)
+	if ! existingRoot {
+		log.Println("Could not read", dataRoot)
+		log.Println("Please make sure it exists and is readable")
+		os.Exit(2)
+	}
+
+	// Print the current settings
+	log.Println("Reading from:", dataRoot)
+	log.Println("Number of readers:", numReaders)
+	if isZipped {
+		log.Println("Reading zipped files")
+	} else {
+		log.Println("Reading uncompressed files")
+	}
+
+	// Use the settings!
+	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	files := []string{
 		"2007/RC_2007-10",
@@ -31,43 +66,75 @@ func main() {
 		"2008/RC_2008-11",
 		"2008/RC_2008-12",
 
-		// "2009/RC_2009-01",
-		// "2009/RC_2009-02",
-		// "2009/RC_2009-03",
-		// "2009/RC_2009-04",
-		// "2009/RC_2009-05",
-		// "2009/RC_2009-06",
-		// "2009/RC_2009-07",
-		// "2009/RC_2009-08",
-		// "2009/RC_2009-09",
-		// "2009/RC_2009-10",
-		// "2009/RC_2009-11",
-		// "2009/RC_2009-12",
+		"2009/RC_2009-01",
+		"2009/RC_2009-02",
+		"2009/RC_2009-03",
+		"2009/RC_2009-04",
+		"2009/RC_2009-05",
+		"2009/RC_2009-06",
+		"2009/RC_2009-07",
+		"2009/RC_2009-08",
+		"2009/RC_2009-09",
+		"2009/RC_2009-10",
+		"2009/RC_2009-11",
+		"2009/RC_2009-12",
 
-		// "2010/RC_2010-01",
-		// "2010/RC_2010-02",
-		// "2010/RC_2010-03",
-		// "2010/RC_2010-04",
-		// "2010/RC_2010-05",
-		// "2010/RC_2010-06",
-		// "2010/RC_2010-07",
-		// "2010/RC_2010-08",
-		// "2010/RC_2010-09",
-		// "2010/RC_2010-10",
-		// "2010/RC_2010-11",
-		// "2010/RC_2010-12",
+		"2010/RC_2010-01",
+		"2010/RC_2010-02",
+		"2010/RC_2010-03",
+		"2010/RC_2010-04",
+		"2010/RC_2010-05",
+		"2010/RC_2010-06",
+		"2010/RC_2010-07",
+		"2010/RC_2010-08",
+		"2010/RC_2010-09",
+		"2010/RC_2010-10",
+		"2010/RC_2010-11",
+		"2010/RC_2010-12",
+
+		"2011/RC_2011-01",
+		"2011/RC_2011-02",
+		"2011/RC_2011-03",
+		"2011/RC_2011-04",
+		"2011/RC_2011-05",
+		"2011/RC_2011-06",
+		"2011/RC_2011-07",
+		"2011/RC_2011-08",
+		"2011/RC_2011-09",
+		"2011/RC_2011-10",
+		"2011/RC_2011-11",
+		"2011/RC_2011-12",
+
+	}
+
+	for k, v := range files {
+		files[k] = dataRoot + "/" + v
+		if isZipped {
+			files[k] = files[k] + ".bz2"
+		}
 	}
 
 	// Let's start reading/decompressing/parsing/...
-	process(files, "/Volumes/Gollum/reddit_data/", numReaders)
+	process(files, numReaders)
+}
+
+// exists returns whether the given file or directory exists or not
+func exists(path string) (bool, error) {
+    _, err := os.Stat(path)
+    if err == nil { return true, nil }
+    if os.IsNotExist(err) { return false, nil }
+    return true, err
 }
 
 var countTotal = make(chan int64)
 var countDeletedAuthors = make(chan int64)
 var countErrors = make(chan int64)
 
-func process(files []string, root string, numReaders int) {
-	// Init a concurrenty limiter
+// Distributes all files to the readers.
+// Once all readers finished, it prints the results
+// Blocks untill readers are finished and results are printed
+func process(files []string, numReaders int) {
+	// Init a concurrency limiter
 	blocker := make(chan int, numReaders)
 	for i := 0; i < numReaders; i++ {
 		blocker <- 1
@@ -84,7 +151,7 @@ func process(files []string, root string, numReaders int) {
 		// This blocks
 		<-blocker
 
-		go readFile(root + file + ".bz2", blocker)
+		go readFile(file, blocker)
 	}
 
 	// Block until everything finished.
@@ -101,6 +168,9 @@ func process(files []string, root string, numReaders int) {
 	}
 }
 
+// Function for aggregating scores between goroutines
+// At the end of a job, routines can send a score. All scores will be summed.
+// Prints the description and the score when it receives input on the finished channel.
 func keepScore(description string, scores <-chan int64, finished <-chan chan int) {
 	count := int64(0)
 
@@ -168,7 +238,7 @@ type Entry struct {
 	Created_utc			string	`json:"created_utc"`
 	Distinguished		string	`json:"distinguished"`
 	Downs				int		`json:"downs"`
-	// // Edited				int	`json:"edited"` // Boolean or timestamp
+	// // Edited				int	`json:"edited"` // Boolean or timestamp -> difficult to parse
 	Gilded				int		`json:"gilded"`
 	Id					string	`json:"id"`
 	Link_id				string	`json:"link_id"`
