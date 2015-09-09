@@ -66,44 +66,44 @@ func main() {
 		"2008/RC_2008-11",
 		"2008/RC_2008-12",
 
-		"2009/RC_2009-01",
-		"2009/RC_2009-02",
-		"2009/RC_2009-03",
-		"2009/RC_2009-04",
-		"2009/RC_2009-05",
-		"2009/RC_2009-06",
-		"2009/RC_2009-07",
-		"2009/RC_2009-08",
-		"2009/RC_2009-09",
-		"2009/RC_2009-10",
-		"2009/RC_2009-11",
-		"2009/RC_2009-12",
+		// "2009/RC_2009-01",
+		// "2009/RC_2009-02",
+		// "2009/RC_2009-03",
+		// "2009/RC_2009-04",
+		// "2009/RC_2009-05",
+		// "2009/RC_2009-06",
+		// "2009/RC_2009-07",
+		// "2009/RC_2009-08",
+		// "2009/RC_2009-09",
+		// "2009/RC_2009-10",
+		// "2009/RC_2009-11",
+		// "2009/RC_2009-12",
 
-		"2010/RC_2010-01",
-		"2010/RC_2010-02",
-		"2010/RC_2010-03",
-		"2010/RC_2010-04",
-		"2010/RC_2010-05",
-		"2010/RC_2010-06",
-		"2010/RC_2010-07",
-		"2010/RC_2010-08",
-		"2010/RC_2010-09",
-		"2010/RC_2010-10",
-		"2010/RC_2010-11",
-		"2010/RC_2010-12",
+		// "2010/RC_2010-01",
+		// "2010/RC_2010-02",
+		// "2010/RC_2010-03",
+		// "2010/RC_2010-04",
+		// "2010/RC_2010-05",
+		// "2010/RC_2010-06",
+		// "2010/RC_2010-07",
+		// "2010/RC_2010-08",
+		// "2010/RC_2010-09",
+		// "2010/RC_2010-10",
+		// "2010/RC_2010-11",
+		// "2010/RC_2010-12",
 
-		"2011/RC_2011-01",
-		"2011/RC_2011-02",
-		"2011/RC_2011-03",
-		"2011/RC_2011-04",
-		"2011/RC_2011-05",
-		"2011/RC_2011-06",
-		"2011/RC_2011-07",
-		"2011/RC_2011-08",
-		"2011/RC_2011-09",
-		"2011/RC_2011-10",
-		"2011/RC_2011-11",
-		"2011/RC_2011-12",
+		// "2011/RC_2011-01",
+		// "2011/RC_2011-02",
+		// "2011/RC_2011-03",
+		// "2011/RC_2011-04",
+		// "2011/RC_2011-05",
+		// "2011/RC_2011-06",
+		// "2011/RC_2011-07",
+		// "2011/RC_2011-08",
+		// "2011/RC_2011-09",
+		// "2011/RC_2011-10",
+		// "2011/RC_2011-11",
+		// "2011/RC_2011-12",
 
 	}
 
@@ -137,6 +137,7 @@ func process(files []string, numReaders int) {
 	// Init a concurrency limiter
 	blocker := make(chan int, numReaders)
 	for i := 0; i < numReaders; i++ {
+		log.Println("Starting reader", i)
 		blocker <- 1
 	}
 
@@ -157,6 +158,7 @@ func process(files []string, numReaders int) {
 	// Block until everything finished.
 	for i := 0; i < numReaders; i++ {
 		<-blocker
+		log.Println("Terminated reader", i, "-> no more files to read")
 	}
 
 	for i := 0; i < 3; i++ {
@@ -207,25 +209,35 @@ func readFile(file string, finished chan<- int) {
 	scanner := bufio.NewScanner(decompressionReader)
 	scanner.Split(bufio.ScanLines)
 
-	subtotal := 0
-	subTotDeleted := 0
-	subTotErrors := 0
+	numLines := int64(0)
+	subTotErrors := int64(0)
+
+	// The struct we're gonna read our data into every time
+	var entry = &Entry{}
 
 	for scanner.Scan() {
-		subtotal++
-		// log.Println(scanner.Text())
-		authorDeleted, err := parse(scanner.Text())
+		numLines++
 
-		if err != nil {
-			subTotErrors++
-		} else if authorDeleted {
-			subTotDeleted++
-		}
+		line := scanner.Bytes()
+
+    	err := json.Unmarshal(line, &entry)
+
+	    if err != nil {
+	    	log.Println(err)
+	    	log.Println(line)
+	    	log.Println("\n")
+
+	    	subTotErrors++
+	    }
+
+	    // Do something with the &entry here...
+	    if entry.Author == "[deleted]" {
+	    	// ... Nothing to do atm
+	    }
 	}
 
-	countTotal <- int64(subtotal)
-	countDeletedAuthors <- int64(subTotDeleted)
-	countErrors <- int64(subTotErrors)
+	countTotal <- numLines
+	countErrors <- subTotErrors
 }
 
 type Entry struct {
@@ -250,26 +262,4 @@ type Entry struct {
 	Subreddit			string	`json:"subreddit"`
 	Subreddit_id		string	`json:"subreddit_id"`
 	Ups					int		`json:"ups"`
-}
-
-
-func parse(line string) (bool, error) {
-	var entry = &Entry{}
-    err := json.Unmarshal([]byte(line), &entry)
-
-    if err != nil {
-    	log.Println(err)
-    	log.Println(line)
-    	log.Println(entry)
-    	// log.Println("Author:", entry.Author)
-
-    	log.Println("\n\n")
-    	return false, err
-    }
-
-    if entry.Author == "[deleted]" {
-    	return true, err
-    } else {
-    	return false, err
-    }
 }
