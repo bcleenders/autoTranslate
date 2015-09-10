@@ -4,130 +4,122 @@ import "bufio"
 import "compress/bzip2"
 import "encoding/json"
 import "flag"
+import "fmt"
 import "io"
 import "log"
 import "os"
 import "runtime"
 
-// Whether or not the files are zipped with bzip2
-// Reading and parsing compressed data gives a ~30% overhead compared to uncompressed data
-var isZipped bool
-
 // Number of simultanious readers
 var numReaders int
-var dataRoot string
+
+// Path to our data
+var zippedRoot string
+var unzippedRoot string
+
+// Where we start/end
+var startYear int
+var lastYear int
 
 func main() {
-	flag.StringVar(&dataRoot, "data", "", "The ")
+	flag.StringVar(&zippedRoot, "zipped", "", "The root folder. From this folder everything must follow the YEAR/RC_YEAR-MONTH structure")
+	flag.StringVar(&unzippedRoot, "unzipped", "", "The root folder of unzipped data. Optional.")
+
 	flag.IntVar(&numReaders, "readers", runtime.NumCPU(), "number of simultanious readers (default is NumCPU)")
-	flag.BoolVar(&isZipped, "zipped", true, "whether the files are zipped (with bzip2)")
+
+	flag.IntVar(&startYear, "start", 2007, "first year to be processed (2007 <= start <= end <= 2015)")
+	flag.IntVar(&lastYear, "last", 2007, "last year to be processed (2007 <= start <= end <= 2015)")
 
 	flag.Parse()
 
-	if dataRoot == "" {
+	// Make sure either the zipped or unzipped data path is set
+	if zippedRoot == "" && unzippedRoot == "" {
 		log.Println("No data folder given: I need data!")
-		log.Println("Use the -data flag to provide the absolute path to the files")
+		log.Println("Use -zipped or -unzipped")
 		os.Exit(1)
 	}
 
-	existingRoot, _ := exists(dataRoot)
-	if ! existingRoot {
-		log.Println("Could not read", dataRoot)
+	// Make sure the path to zipped files exists (if it's set)
+	if zippedRoot != "" && !exists(zippedRoot) {
+		log.Println("Could not read from", zippedRoot)
 		log.Println("Please make sure it exists and is readable")
 		os.Exit(2)
 	}
 
-	// Print the current settings
-	log.Println("Reading from:", dataRoot)
-	log.Println("Number of readers:", numReaders)
-	if isZipped {
-		log.Println("Reading zipped files")
-	} else {
-		log.Println("Reading uncompressed files")
+	// Make sure the path to unzipped files exists (if it's set)
+	if unzippedRoot != "" && !exists(unzippedRoot) {
+		log.Println("Could not read from", zippedRoot)
+		log.Println("Please make sure it exists and is readable")
+		os.Exit(2)
 	}
+
+	// Make sure the date range is valid
+	if 2007 > startYear || startYear > lastYear || lastYear > 2015 {
+		log.Println("Invalid data range (from", startYear, "to", lastYear, ")")
+		log.Println("Must be: 2007 <= start <= end <= 2015")
+		os.Exit(3)
+	}
+
+	log.Println("Processing date range", startYear, "to", lastYear)
+
+	// Print the current settings
+	log.Println("Searching for zipped files in:", zippedRoot)
+	log.Println("Searching for unzipped files in:", unzippedRoot)
+
+	log.Println("Number of readers:", numReaders)
 
 	// Use the settings!
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	files := []string{
-		"2007/RC_2007-10",
-		"2007/RC_2007-11",
-		"2007/RC_2007-12",
-
-		"2008/RC_2008-01",
-		"2008/RC_2008-02",
-		"2008/RC_2008-03",
-		"2008/RC_2008-04",
-		"2008/RC_2008-05",
-		"2008/RC_2008-06",
-		"2008/RC_2008-07",
-		"2008/RC_2008-08",
-		"2008/RC_2008-09",
-		"2008/RC_2008-10",
-		"2008/RC_2008-11",
-		"2008/RC_2008-12",
-
-		"2009/RC_2009-01",
-		"2009/RC_2009-02",
-		"2009/RC_2009-03",
-		"2009/RC_2009-04",
-		"2009/RC_2009-05",
-		"2009/RC_2009-06",
-		"2009/RC_2009-07",
-		"2009/RC_2009-08",
-		"2009/RC_2009-09",
-		"2009/RC_2009-10",
-		"2009/RC_2009-11",
-		"2009/RC_2009-12",
-
-		"2010/RC_2010-01",
-		"2010/RC_2010-02",
-		"2010/RC_2010-03",
-		"2010/RC_2010-04",
-		"2010/RC_2010-05",
-		"2010/RC_2010-06",
-		"2010/RC_2010-07",
-		"2010/RC_2010-08",
-		"2010/RC_2010-09",
-		"2010/RC_2010-10",
-		"2010/RC_2010-11",
-		"2010/RC_2010-12",
-
-		"2011/RC_2011-01",
-		"2011/RC_2011-02",
-		"2011/RC_2011-03",
-		"2011/RC_2011-04",
-		"2011/RC_2011-05",
-		"2011/RC_2011-06",
-		"2011/RC_2011-07",
-		"2011/RC_2011-08",
-		"2011/RC_2011-09",
-		"2011/RC_2011-10",
-		"2011/RC_2011-11",
-		"2011/RC_2011-12",
-	}
-
-	for k, v := range files {
-		files[k] = dataRoot + "/" + v
-		if isZipped {
-			files[k] = files[k] + ".bz2"
-		}
-	}
+	// Generate a list of filenames we're gonna read
+	files := getFilePaths()
 
 	// Let's start reading/decompressing/parsing/...
 	process(files, numReaders)
 }
 
 // exists returns whether the given file or directory exists or not
-func exists(path string) (bool, error) {
+func exists(path string) (bool) {
     _, err := os.Stat(path)
-    if err == nil { return true, nil }
-    if os.IsNotExist(err) { return false, nil }
-    return true, err
+    if err == nil { return true }
+    if os.IsNotExist(err) { return false }
+    return true
+}
+
+// Generates the (relative) filenames for a certain period (i.e. 2007 to 2010)
+func getFilePaths() ([]string) {
+	var files []string
+
+	for year := startYear; year <= lastYear; year++ {
+		startMonth := 1
+		if year == 2007 {
+			startMonth = 10
+		}
+		endMonth := 12
+		if year == 2015 {
+			endMonth = 5
+		}
+
+		for month := startMonth; month <= endMonth; month++ {
+			filename := fmt.Sprintf("/%d/RC_%d-%02d", year, year, month)
+
+			files = append(files, filename)
+		}
+	}
+
+	return files
 }
 
 var countTotal = make(chan int64)
 var countErrors = make(chan int64)
+
+var st10 = make(chan int64)
+var st50 = make(chan int64)
+var st100 = make(chan int64)
+var st500 = make(chan int64)
+var st1000 = make(chan int64)
+var st5000 = make(chan int64)
+var lt5000 = make(chan int64)
 
 // Distributes all files to the readers.
 // Once all readers finished, it prints the results
@@ -146,6 +138,14 @@ func process(files []string, numReaders int) {
 	go keepScore("Total", countTotal, finished)
 	go keepScore("Errors", countErrors, finished)
 
+	go keepScore("Smaller than 10", st10, finished)
+	go keepScore("Smaller than 50", st50, finished)
+	go keepScore("Smaller than 100", st100, finished)
+	go keepScore("Smaller than 500", st500, finished)
+	go keepScore("Smaller than 1000", st1000, finished)
+	go keepScore("Smaller than 5000", st5000, finished)
+	go keepScore("Larger than 5000", lt5000, finished)
+
 	// Loop over the files in reverse order
 	// We start with the biggest files
 	// Should give a more equal finishing time
@@ -162,7 +162,7 @@ func process(files []string, numReaders int) {
 		log.Println("Terminated reader", i, "-> no more files to read")
 	}
 
-	for i := 0; i < 2; i++ {
+	for i := 0; i < 2 + 7; i++ {
 		w := make(chan int)
 		finished <- w
 
@@ -196,7 +196,23 @@ func readFile(file string, finished chan<- int) {
         finished <- 1
     }()
 
-	fileReader, err := os.Open(file)
+    var readingZipped bool
+    var filePath string
+
+    if unzippedRoot != "" && exists(unzippedRoot + file) {
+		filePath = unzippedRoot + file
+		readingZipped = false
+	} else if zippedRoot != "" && exists(zippedRoot + file + ".bz2") {
+		filePath = zippedRoot + file + ".bz2"
+		readingZipped = true
+	} else {
+		log.Println("Could not read", file)
+		log.Println("Tried", (unzippedRoot + file))
+		log.Println("Tried", (zippedRoot + file + ".bz2"))
+		return
+	}
+
+	fileReader, err := os.Open(filePath)
 	defer fileReader.Close()
 	if err != nil {
 		log.Println("Error reading file", file, ":", err)
@@ -205,14 +221,14 @@ func readFile(file string, finished chan<- int) {
 
 	// If we're handling zipped data, add a bzip2 decompressor in between
 	var reader io.Reader
-	if isZipped {
+	if readingZipped {
 		reader = bzip2.NewReader(fileReader)
 	} else {
 		reader = fileReader
 	}
 
 	// No error -> continue!
-	log.Println("Reading file", file)
+	log.Println("Reading file", file, "from", filePath)
 
 	// Scan file contents
 	scanner := bufio.NewScanner(reader)
@@ -220,6 +236,13 @@ func readFile(file string, finished chan<- int) {
 
 	numLines := int64(0)
 	subTotErrors := int64(0)
+	subtotal_st10 := int64(0)
+	subtotal_st50 := int64(0)
+	subtotal_st100 := int64(0)
+	subtotal_st500 := int64(0)
+	subtotal_st1000 := int64(0)
+	subtotal_st5000 := int64(0)
+	subtotal_lt5000 := int64(0)
 
 	// The struct we're gonna read our data into every time
 	var entry = &Entry{}
@@ -239,36 +262,50 @@ func readFile(file string, finished chan<- int) {
 	    	subTotErrors++
 	    }
 
-	    // Do something with the &entry here...
-	    if entry.Author == "[deleted]" {
-	    	// ... Nothing to do atm
+	    length := len(entry.Body)
+	    switch {
+	    	case length < 10: subtotal_st10++
+	    	case length < 50: subtotal_st50++
+	    	case length < 100: subtotal_st100++
+	    	case length < 500: subtotal_st500++
+	    	case length < 1000: subtotal_st1000++
+	    	case length < 5000: subtotal_st5000++
+	    	case length > 5000: subtotal_lt5000++
 	    }
 	}
 
 	countTotal <- numLines
 	countErrors <- subTotErrors
+
+	st10 <- subtotal_st10
+	st50 <- subtotal_st50
+	st100 <- subtotal_st100
+	st500 <- subtotal_st500
+	st1000 <- subtotal_st1000
+	st5000 <- subtotal_st5000
+	lt5000 <- subtotal_lt5000
 }
 
 type Entry struct {
-	Archived			bool	`json:"archived"`
+	// Archived			bool	`json:"archived"`
 	Author				string	`json:"author"`
-	Author_flair_css	string	`json:"author_flair_css"`
-	Author_flair_text	string	`json:"author_flair_text"`
+	// Author_flair_css	string	`json:"author_flair_css"`
+	// Author_flair_text	string	`json:"author_flair_text"`
 	Body				string	`json:"body"`
-	Controversiality	int		`json:"controversiality"`
-	Created_utc			string	`json:"created_utc"`
-	Distinguished		string	`json:"distinguished"`
-	Downs				int		`json:"downs"`
+	// Controversiality	int		`json:"controversiality"`
+	// Created_utc			string	`json:"created_utc"`
+	// Distinguished		string	`json:"distinguished"`
+	// Downs				int		`json:"downs"`
 	// // Edited				int	`json:"edited"` // Boolean or timestamp -> difficult to parse
-	Gilded				int		`json:"gilded"`
-	Id					string	`json:"id"`
-	Link_id				string	`json:"link_id"`
-	Name				string	`json:"name"`
-	Parent_id			string	`json:"parent_id"`
-	Retrieved_on		int		`json:"retrieved_on"`
-	Score				int		`json:"score"`
-	Score_hidden		bool	`json:"score_hidden"`
-	Subreddit			string	`json:"subreddit"`
-	Subreddit_id		string	`json:"subreddit_id"`
-	Ups					int		`json:"ups"`
+	// Gilded				int		`json:"gilded"`
+	// Id					string	`json:"id"`
+	// Link_id				string	`json:"link_id"`
+	// Name				string	`json:"name"`
+	// Parent_id			string	`json:"parent_id"`
+	// Retrieved_on		int		`json:"retrieved_on"`
+	// Score				int		`json:"score"`
+	// Score_hidden		bool	`json:"score_hidden"`
+	// Subreddit			string	`json:"subreddit"`
+	// Subreddit_id		string	`json:"subreddit_id"`
+	// Ups					int		`json:"ups"`
 }
