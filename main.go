@@ -1,14 +1,14 @@
 package main
 
 import "bufio"
-import "compress/bzip2"
 import "encoding/json"
 import "flag"
 import "fmt"
-import "io"
 import "log"
 import "os"
 import "runtime"
+import "strconv"
+import "strings"
 
 // Number of simultanious readers
 var numReaders int
@@ -17,13 +17,18 @@ var numReaders int
 var zippedRoot string
 var unzippedRoot string
 
+// Path to output folder
+var outputRoot string
+
 // Where we start/end
 var startYear int
 var lastYear int
 
 func main() {
 	flag.StringVar(&zippedRoot, "zipped", "", "The root folder. From this folder everything must follow the YEAR/RC_YEAR-MONTH structure")
-	flag.StringVar(&unzippedRoot, "unzipped", "", "The root folder of unzipped data. Optional.")
+	flag.StringVar(&unzippedRoot, "unzipped", "", "The root folder of unzipped data.")
+
+	flag.StringVar(&outputRoot, "out", "", "The output folder")
 
 	flag.IntVar(&numReaders, "readers", runtime.NumCPU(), "number of simultanious readers (default is NumCPU)")
 
@@ -37,6 +42,11 @@ func main() {
 		log.Println("No data folder given: I need data!")
 		log.Println("Use -zipped or -unzipped")
 		os.Exit(1)
+	}
+
+	if outputRoot == "" {
+		log.Println("I need an output directory. Provide with -out flag")
+		os.Exit(2)
 	}
 
 	// Make sure the path to zipped files exists (if it's set)
@@ -66,6 +76,9 @@ func main() {
 	log.Println("Searching for zipped files in:", zippedRoot)
 	log.Println("Searching for unzipped files in:", unzippedRoot)
 
+	os.MkdirAll(outputRoot, 0777)
+	log.Println("Writing output to:", outputRoot)
+
 	log.Println("Number of readers:", numReaders)
 
 	// Use the settings!
@@ -75,22 +88,16 @@ func main() {
 	files := getFilePaths()
 
 	// Let's start reading/decompressing/parsing/...
-	process(files, numReaders)
-}
-
-// exists returns whether the given file or directory exists or not
-func exists(path string) (bool) {
-    _, err := os.Stat(path)
-    if err == nil { return true }
-    if os.IsNotExist(err) { return false }
-    return true
+	readFiles(files, numReaders)
 }
 
 // Generates the (relative) filenames for a certain period (i.e. 2007 to 2010)
-func getFilePaths() ([]string) {
+func getFilePaths() []string {
 	var files []string
 
 	for year := startYear; year <= lastYear; year++ {
+		os.MkdirAll(outputRoot+"/"+strconv.Itoa(year), 0777)
+
 		startMonth := 1
 		if year == 2007 {
 			startMonth = 10
@@ -113,18 +120,10 @@ func getFilePaths() ([]string) {
 var countTotal = make(chan int64)
 var countErrors = make(chan int64)
 
-var st10 = make(chan int64)
-var st50 = make(chan int64)
-var st100 = make(chan int64)
-var st500 = make(chan int64)
-var st1000 = make(chan int64)
-var st5000 = make(chan int64)
-var lt5000 = make(chan int64)
-
 // Distributes all files to the readers.
 // Once all readers finished, it prints the results
 // Blocks untill readers are finished and results are printed
-func process(files []string, numReaders int) {
+func readFiles(files []string, numReaders int) {
 	// Init a concurrency limiter
 	blocker := make(chan int, numReaders)
 	for i := 0; i < numReaders; i++ {
@@ -138,18 +137,10 @@ func process(files []string, numReaders int) {
 	go keepScore("Total", countTotal, finished)
 	go keepScore("Errors", countErrors, finished)
 
-	go keepScore("Smaller than 10", st10, finished)
-	go keepScore("Smaller than 50", st50, finished)
-	go keepScore("Smaller than 100", st100, finished)
-	go keepScore("Smaller than 500", st500, finished)
-	go keepScore("Smaller than 1000", st1000, finished)
-	go keepScore("Smaller than 5000", st5000, finished)
-	go keepScore("Larger than 5000", lt5000, finished)
-
 	// Loop over the files in reverse order
 	// We start with the biggest files
 	// Should give a more equal finishing time
-	for i := len(files)-1; i >= 0; i-- {
+	for i := len(files) - 1; i >= 0; i-- {
 		// This blocks
 		<-blocker
 
@@ -162,7 +153,7 @@ func process(files []string, numReaders int) {
 		log.Println("Terminated reader", i, "-> no more files to read")
 	}
 
-	for i := 0; i < 2 + 7; i++ {
+	for i := 0; i < 2; i++ {
 		w := make(chan int)
 		finished <- w
 
@@ -178,57 +169,42 @@ func keepScore(description string, scores <-chan int64, finished <-chan chan int
 	count := int64(0)
 
 	for {
-        // Either we wait untill we have a new URL incoming, or we quit
-        select {
-        case c := <-finished:
-        	log.Println(description, "->", count)
-        	c <- 1
-        	return
-        case score := <-scores:
-            count += score
-        }
-    }
+		// Either we wait untill we have a new URL incoming, or we quit
+		select {
+		case c := <-finished:
+			log.Println(description, "->", count)
+			c <- 1
+			return
+		case score := <-scores:
+			count += score
+		}
+	}
 }
 
 func readFile(file string, finished chan<- int) {
 	// Don't forget to let the others know we finished here
 	defer func() {
-        finished <- 1
-    }()
+		finished <- 1
+	}()
 
-    var readingZipped bool
-    var filePath string
-
-    if unzippedRoot != "" && exists(unzippedRoot + file) {
-		filePath = unzippedRoot + file
-		readingZipped = false
-	} else if zippedRoot != "" && exists(zippedRoot + file + ".bz2") {
-		filePath = zippedRoot + file + ".bz2"
-		readingZipped = true
-	} else {
-		log.Println("Could not read", file)
-		log.Println("Tried", (unzippedRoot + file))
-		log.Println("Tried", (zippedRoot + file + ".bz2"))
-		return
-	}
-
-	fileReader, err := os.Open(filePath)
-	defer fileReader.Close()
+	reader, handle, err := getReader(file, unzippedRoot, zippedRoot)
 	if err != nil {
-		log.Println("Error reading file", file, ":", err)
 		return
 	}
+	defer handle.Close()
 
-	// If we're handling zipped data, add a bzip2 decompressor in between
-	var reader io.Reader
-	if readingZipped {
-		reader = bzip2.NewReader(fileReader)
-	} else {
-		reader = fileReader
+	// Create an output file to write our data to. Keeps same structure as input data (/YEAR/RC_YEAR-MONTH)
+	output, err := os.Create(outputRoot + "/" + file)
+	if err != nil {
+		log.Println("Could not create", (outputRoot + file))
+		log.Println(err)
+		return
 	}
+	defer output.Close()
+	writer := bufio.NewWriter(output)
 
 	// No error -> continue!
-	log.Println("Reading file", file, "from", filePath)
+	log.Println("Reading file", file)
 
 	// Scan file contents
 	scanner := bufio.NewScanner(reader)
@@ -236,13 +212,6 @@ func readFile(file string, finished chan<- int) {
 
 	numLines := int64(0)
 	subTotErrors := int64(0)
-	subtotal_st10 := int64(0)
-	subtotal_st50 := int64(0)
-	subtotal_st100 := int64(0)
-	subtotal_st500 := int64(0)
-	subtotal_st1000 := int64(0)
-	subtotal_st5000 := int64(0)
-	subtotal_lt5000 := int64(0)
 
 	// The struct we're gonna read our data into every time
 	var entry = &Entry{}
@@ -255,43 +224,33 @@ func readFile(file string, finished chan<- int) {
 		err := json.Unmarshal(line, &entry)
 
 		if err != nil {
-	    	log.Println(err)
-	    	log.Println(line)
-	    	log.Println("\n")
+			log.Println(err)
+			log.Println(line)
+			log.Println("\n")
 
-	    	subTotErrors++
-	    }
+			subTotErrors++
+		}
 
-	    length := len(entry.Body)
-	    switch {
-	    	case length < 10: subtotal_st10++
-	    	case length < 50: subtotal_st50++
-	    	case length < 100: subtotal_st100++
-	    	case length < 500: subtotal_st500++
-	    	case length < 1000: subtotal_st1000++
-	    	case length < 5000: subtotal_st5000++
-	    	case length > 5000: subtotal_lt5000++
-	    }
+		// Extract whatever info we want from it
+		processed := process(entry)
+
+		writer.WriteString(processed)
+		writer.WriteString("\n")
 	}
+
+	// Flush data to disk to make sure everything is saved
+	writer.Flush()
 
 	countTotal <- numLines
 	countErrors <- subTotErrors
-
-	st10 <- subtotal_st10
-	st50 <- subtotal_st50
-	st100 <- subtotal_st100
-	st500 <- subtotal_st500
-	st1000 <- subtotal_st1000
-	st5000 <- subtotal_st5000
-	lt5000 <- subtotal_lt5000
 }
 
 type Entry struct {
 	// Archived			bool	`json:"archived"`
-	Author				string	`json:"author"`
+	Author string `json:"author"`
 	// Author_flair_css	string	`json:"author_flair_css"`
 	// Author_flair_text	string	`json:"author_flair_text"`
-	Body				string	`json:"body"`
+	Body string `json:"body"`
 	// Controversiality	int		`json:"controversiality"`
 	// Created_utc			string	`json:"created_utc"`
 	// Distinguished		string	`json:"distinguished"`
@@ -308,4 +267,13 @@ type Entry struct {
 	// Subreddit			string	`json:"subreddit"`
 	// Subreddit_id		string	`json:"subreddit_id"`
 	// Ups					int		`json:"ups"`
+}
+
+func process(entry *Entry) string {
+	body := entry.Body
+
+	// Remove newlines
+	body = strings.Replace(body, "\n", "", -1)
+
+	return body
 }
