@@ -7,10 +7,10 @@ cd ./word2vec
 make
 
 ./word2vec \
-	-train $cleaned_data/* \
-	-output vectors.bin \
+	-train $concatenated_data \
+	-output $vectors \
 	-cbow 1 \
-	-size 500 \
+	-size 200 \
 	-window 10 \
 	-negative 10 \
 	-hs 0 \
@@ -19,4 +19,4 @@ make
 	-binary 1 \
 	-iter 3 \
 	-min \
-	-count 10
+	-count 50

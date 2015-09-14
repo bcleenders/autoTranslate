@@ -7,4 +7,4 @@ time go run *.go \
 	-zipped=$zipped \
 	-out=$cleaned_data \
 	-start=2007 \
-	-last=2007
+	-last=2009

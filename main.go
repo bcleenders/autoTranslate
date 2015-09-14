@@ -24,6 +24,8 @@ var outputRoot string
 var startYear int
 var lastYear int
 
+var replacer *strings.Replacer
+
 func main() {
 	flag.StringVar(&zippedRoot, "zipped", "", "The root folder. From this folder everything must follow the YEAR/RC_YEAR-MONTH structure")
 	flag.StringVar(&unzippedRoot, "unzipped", "", "The root folder of unzipped data.")
@@ -80,6 +82,8 @@ func main() {
 	log.Println("Writing output to:", outputRoot)
 
 	log.Println("Number of readers:", numReaders)
+
+	replacer = strings.NewReplacer( ".", "", ",", "", "[deleted]", "", "\n", "")
 
 	// Use the settings!
 	runtime.GOMAXPROCS(runtime.NumCPU())
@@ -270,10 +274,5 @@ type Entry struct {
 }
 
 func process(entry *Entry) string {
-	body := entry.Body
-
-	// Remove newlines
-	body = strings.Replace(body, "\n", "", -1)
-
-	return body
+	return replacer.Replace(entry.Body)
 }
