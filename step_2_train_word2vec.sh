@@ -7,7 +7,7 @@ cd ./word2vec
 make
 
 ./word2vec \
-	-train $concatenated_data \
+	-train "$concatenated_data" \
 	-output $vectors \
 	-cbow 1 \
 	-size 200 \
@@ -19,4 +19,4 @@ make
 	-binary 1 \
 	-iter 3 \
 	-min \
-	-count 50
+	-count 10

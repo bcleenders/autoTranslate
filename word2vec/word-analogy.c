@@ -111,13 +111,33 @@ int main(int argc, char **argv) {
     }
     if (b == 0) continue;
     printf("\n                                              Word              Distance\n------------------------------------------------------------------------\n");
+    // king - man + woman = queen
+    // bi[0] = pos(man)
+    // bi[1] = pos(king)
+    // bi[2] = pos(woman)
+    // a = current dimension we're looking at
+
+    // Given
+    // X={x_1, x_2, ...} -> 
+    // Y={y_1, y_2, ...} -> 
+    // Z={z_1, z_2, ...} -> 
+    // define output vector O as
+    // O[i] = y_i - x_i + z_i
     for (a = 0; a < size; a++) vec[a] = M[a + bi[1] * size] - M[a + bi[0] * size] + M[a + bi[2] * size];
+    
+    // Get the (Euclidean) length of the result vector -> sqrt(sum(v_i^2))
     len = 0;
     for (a = 0; a < size; a++) len += vec[a] * vec[a];
     len = sqrt(len);
+    
+    // Normalize vector
     for (a = 0; a < size; a++) vec[a] /= len;
+
+    // Create an empty top N list that we'll output later
     for (a = 0; a < N; a++) bestd[a] = 0;
     for (a = 0; a < N; a++) bestw[a][0] = 0;
+
+    // Loop over all words to see how closely related they are to the perfect oucome
     for (c = 0; c < words; c++) {
       if (c == bi[0]) continue;
       if (c == bi[1]) continue;
@@ -126,13 +146,27 @@ int main(int argc, char **argv) {
       for (b = 0; b < cn; b++) if (bi[b] == c) a = 1;
       if (a == 1) continue;
       dist = 0;
-      for (a = 0; a < size; a++) dist += vec[a] * M[a + c * size];
+      
+      // This is where the magic is happening: loop over all fields of the vector
+      // Calculate similarity between vector V1={v_1_1, v_1_2, ...} and V2={v_2_1, v_2_2, ...} as:
+      // SUM(v_1_i * v_2_i)
+      for (a = 0; a < size; a++) {
+        // Similarity measure: cos(b', b-a+a')
+        // With cos(u, v) = (u*v)/(|u| * |v|)
+        // Since u and v are normalized, cos(u, v) = u*v
+        // This is referred to as the 2CosAdd method in the paper by Omer Levy and Yoav Goldberg (2014)
+        dist += vec[a] * M[a + c * size];
+      }
+
       for (a = 0; a < N; a++) {
+        // higher score = better match
         if (dist > bestd[a]) {
+          // Shift down everything that should be below this word
           for (d = N - 1; d > a; d--) {
             bestd[d] = bestd[d - 1];
             strcpy(bestw[d], bestw[d - 1]);
           }
+          // And set this word in the empty place
           bestd[a] = dist;
           strcpy(bestw[a], &vocab[c * max_w]);
           break;
