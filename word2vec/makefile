@@ -4,7 +4,7 @@ CFLAGS = -lm -pthread -Ofast -march=native -Wall -funroll-loops -Wno-unused-resu
 
 all: word2vec word2phrase distance word-analogy compute-accuracy word-analogy_3cosmul
 
-experiment: word-analogy_3cosmul
+experiment: word-analogy_3cosmul word-analogy_log
 
 word2vec : word2vec.c
 	$(CC) word2vec.c -o word2vec $(CFLAGS)

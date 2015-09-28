@@ -123,7 +123,10 @@ int main(int argc, char **argv) {
     // Z={z_1, z_2, ...} -> 
     // define output vector O as
     // O[i] = y_i - x_i + z_i
-    for (a = 0; a < size; a++) vec[a] = M[a + bi[1] * size] - M[a + bi[0] * size] + M[a + bi[2] * size];
+    for (a = 0; a < size; a++) {
+      vec[a] = log(fabs(M[a + bi[1] * size] - M[a + bi[0] * size] + M[a + bi[2] * size]));
+      printf("%f\n", vec[a]);
+    }
     
     // Get the (Euclidean) length of the result vector -> sqrt(sum(v_i^2))
     len = 0;
@@ -146,6 +149,10 @@ int main(int argc, char **argv) {
       for (b = 0; b < cn; b++) if (bi[b] == c) a = 1;
       if (a == 1) continue;
       dist = 0;
+
+      float lenA = 0.0f;
+      for (a = 0; a < size; a++) lenA += log(fabs(M[a + c * size])) * log(fabs(M[a + c * size]));
+      lenA = sqrt(lenA);
       
       // This is where the magic is happening: loop over all fields of the vector
       // Calculate similarity between vector V1={v_1_1, v_1_2, ...} and V2={v_2_1, v_2_2, ...} as:
@@ -155,8 +162,10 @@ int main(int argc, char **argv) {
         // With cos(u, v) = (u*v)/(|u| * |v|)
         // Since u and v are normalized, cos(u, v) = u*v
         // This is referred to as the 2CosAdd method in the paper by Omer Levy and Yoav Goldberg (2014)
-        dist += vec[a] * M[a + c *size];
+        dist += vec[a] * (log(fabs(M[a + c * size]) + 0.001f) / lenA);
+        // printf("%f,", (log(fabs(M[a + c * size])) / lenA));
       }
+      // return 0;
 
       for (a = 0; a < N; a++) {
         // higher score = better match
