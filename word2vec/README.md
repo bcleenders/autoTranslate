@@ -1,3 +1,9 @@
+# word2vec
+For the record: this is code written by Google, released here: https://code.google.com/p/word2vec/
+
+It's licensed under an Apache license.
+
+
 Tools for computing distributed representtion of words
 ------------------------------------------------------
 
