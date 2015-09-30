@@ -1,1 +1,12 @@
 *.bin
+
+
+#LaTeX stuff
+*.aux
+*.blg
+*.bbl
+*.dvi
+*.log
+*.out
+*.swp
+*.synctex.gz
