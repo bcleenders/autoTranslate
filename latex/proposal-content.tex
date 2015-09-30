@@ -24,9 +24,19 @@ Pretty much what our deliverables are...
 
 \subsection{Tasks}
 What do we have to do to achieve this?
-
 \begin{itemize}
   \item Build (at least) two working setups for automated translation
+    \begin{itemize}
+      \item For the single-model setup
+      \begin{itemize}
+        \item Merge datasets, train single model
+      \end{itemize}
+      \item For the multi-model setup
+      \begin{itemize}
+        \item Train individual models
+        \item Train transformation matrix between models
+      \end{itemize}
+    \end{itemize}
   \item Make a verification mechanism
   \item Verify which setup works better
 \end{itemize}
@@ -49,4 +59,25 @@ A global overview of the milestones we defined in our research is as follows;
 \section{Allocation of Responsibilities}
 Marc pledges to provide sufficient beer. Bram will take care of coffee and possibly some Club-Maté.
 
-\lipsum[66]
+\section{Resources}
+We have identified three main resources needed for this research: a large English corpus, a large Dutch corpus and computional resources to analyze the data.
+
+The two corpora should ideally be several tens of gigabytes or larger. Mikolov et al.~\ref{mikolov2013distributed} specifically state that a large amount of training data is crucial for word2vec to build a correct model. They speak of corpora 30 billion words, with a significant decrease in correctness when lowering the corpus size to only 6 billion words.
+
+For this research, we will look at the following corpora:
+\begin{itemize}
+  \item \textit{Reddit corpus}
+    \footnote{\url{https://archive.org/details/2015_reddit_comments_corpus}}
+    (1TB uncompressed JSON, 50 billion words) Corpus containing all posts on Reddit. It is mostly English, but also contains a few other languages.
+  \item \textit{Wikipedia EN crawl} 
+    \footnote{\url{https://dumps.wikimedia.org/enwiki/20150901/}}
+    (60GB uncompressed XML, 3 billion words) Corpus of all text on the English Wikipedia (ignoring revisions).
+  \item \textit{Wikipedia NL Crawl} 
+    \footnote{\url{https://dumps.wikimedia.org/nlwiki/20150901/}}
+    (5GB uncompressed XML, 250 million words) Corpus of all text on the Dutch Wikipedia (ignoring revisions).
+  \item \textit{SoNaR-500} 
+    \footnote{\url{http://tst-centrale.org/producten/corpora/sonar-corpus/6-85}}
+    (60GB uncompressed text, >500 million words) Curated corpus gathered by several Dutch universities, consisting of newspapers, subtitles, etc.
+\end{itemize}
+
+These datasets are all open for academic usage, in various degrees of opennes.
