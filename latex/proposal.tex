@@ -1,0 +1,74 @@
+% Original LaTeX code based on Twente Student Conference on IT template
+
+% refers to the cls file being used (ACM standard)
+% ACM LaTeX2e Style File V3.2SP
+\documentclass{acm_proc_article-sp}
+
+% Allow special chars in sourcecode
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\usepackage{hyperref}
+
+% Sample text (test layout)
+\usepackage{lipsum}
+
+\begin{document}
+
+\title{Proposal: Unsupervised Machine Translation with Word2Vec}
+\subtitle{II2202, Fall 2015}
+
+% Use the \alignauthor commands to handle the names
+% and affiliations for an 'aesthetic maximum' of six authors.
+% Add names, affiliations, addresses for
+% the seventh etc. author(s) as the argument for the
+% \additionalauthors command.
+% These 'additional authors' will be output/set for you
+% without further effort on your part as the last section in
+% the body of your article BEFORE References or any Appendices.
+
+\numberofauthors{2} 
+\author{
+% You can go ahead and credit any number of authors here,
+% e.g. one 'row of three' or two rows (consisting of one row of three
+% and a second row of one, two or three).
+%
+% The command \alignauthor (no curly braces needed) should
+% precede each author name, affiliation/snail-mail address and
+% e-mail address. Additionally, tag each line of
+% affiliation/address with \affaddr, and tag the
+% e-mail address with \email.
+%
+% 1st. author
+\alignauthor
+Bram Leenders\\
+       \affaddr{KTH, Royal Institute of Technology}\\
+       \affaddr{Brinellvägen 8, 114 28 Stockholm}\\
+       \affaddr{Sweden}\\
+       \affaddr{\href{mailto:b.c.leenders@gmail.com}{b.c.leenders@gmail.com}}
+\alignauthor
+Marc Romeyn\\
+       \affaddr{KTH, Royal Institute of Technology}\\
+       \affaddr{Brinellvägen 8, 114 28 Stockholm}\\
+       \affaddr{Sweden}\\
+       \affaddr{\href{mailto:marc.romeyn@gmail.com}{marc.romeyn@gmail.com}}
+}
+
+\date{\today}
+
+\maketitle
+\begin{abstract}
+Add an abstract or comment this part out
+\end{abstract}
+
+\keywords{Word2Vec, Machine Translation}
+
+\input{proposal-content.tex}
+
+%References
+\bibliographystyle{abbrv}
+\bibliography{references}
+
+\balancecolumns
+\end{document}
