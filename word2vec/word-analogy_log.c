@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
   char st1[max_size];
   char bestw[N][max_size];
   char file_name[max_size], st[100][max_size];
-  float dist, len, bestd[N], vec[max_size];
+  long double dist, len, bestd[N], vec[max_size];
   long long words, size, a, b, c, d, cn, bi[100];
   char ch;
   float *M;
@@ -115,6 +115,7 @@ int main(int argc, char **argv) {
     // bi[0] = pos(man)
     // bi[1] = pos(king)
     // bi[2] = pos(woman)
+    // vec = calculated answer (queen)
     // a = current dimension we're looking at
 
     // Given
@@ -124,13 +125,14 @@ int main(int argc, char **argv) {
     // define output vector O as
     // O[i] = y_i - x_i + z_i
     for (a = 0; a < size; a++) {
-      vec[a] = log(fabs(M[a + bi[1] * size] - M[a + bi[0] * size] + M[a + bi[2] * size]));
-      printf("%f\n", vec[a]);
+      vec[a] = log(fabsl(M[a + bi[1] * size])) 
+        - log(fabsl(M[a + bi[0] * size])) 
+        + log(fabsl(M[a + bi[2] * size]));
     }
     
     // Get the (Euclidean) length of the result vector -> sqrt(sum(v_i^2))
     len = 0;
-    for (a = 0; a < size; a++) len += vec[a] * vec[a];
+    for (a = 0; a < size; a++) len += powl(vec[a], 2);
     len = sqrt(len);
     
     // Normalize vector
@@ -148,10 +150,10 @@ int main(int argc, char **argv) {
       a = 0;
       for (b = 0; b < cn; b++) if (bi[b] == c) a = 1;
       if (a == 1) continue;
-      dist = 0;
+      dist = 0.0L;
 
-      float lenA = 0.0f;
-      for (a = 0; a < size; a++) lenA += log(fabs(M[a + c * size])) * log(fabs(M[a + c * size]));
+      long double lenA = 0.0L;
+      for (a = 0; a < size; a++) lenA += powl(log(fabsl(M[a + c * size]) + 0.1L), 2.0L);
       lenA = sqrt(lenA);
       
       // This is where the magic is happening: loop over all fields of the vector
@@ -162,8 +164,8 @@ int main(int argc, char **argv) {
         // With cos(u, v) = (u*v)/(|u| * |v|)
         // Since u and v are normalized, cos(u, v) = u*v
         // This is referred to as the 2CosAdd method in the paper by Omer Levy and Yoav Goldberg (2014)
-        dist += vec[a] * (log(fabs(M[a + c * size]) + 0.001f) / lenA);
-        // printf("%f,", (log(fabs(M[a + c * size])) / lenA));
+        dist += vec[a] * (log(fabsl(M[a + c * size]) + 0.1L) / lenA);
+        // printf("%f,", (log(fabsl(M[a + c * size])) / lenA));
       }
       // return 0;
 
@@ -182,7 +184,7 @@ int main(int argc, char **argv) {
         }
       }
     }
-    for (a = 0; a < N; a++) printf("%50s\t\t%f\n", bestw[a], bestd[a]);
+    for (a = 0; a < N; a++) printf("%50s\t\t%Lf\n", bestw[a], bestd[a]);
   }
   return 0;
 }

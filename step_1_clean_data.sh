@@ -2,6 +2,8 @@
 
 source settings.cfg
 
+cd gocode
+
 time go run *.go \
 	-unzipped=$unzipped \
 	-zipped=$zipped \

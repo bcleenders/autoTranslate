@@ -155,7 +155,7 @@ int main(int argc, char **argv) {
         // With cos(u, v) = (u*v)/(|u| * |v|)
         // Since u and v are normalized, cos(u, v) = u*v
         // This is referred to as the 2CosAdd method in the paper by Omer Levy and Yoav Goldberg (2014)
-        dist += vec[a] * M[a + c *size];
+        dist += vec[a]) * M[a + c * size];
       }
 
       for (a = 0; a < N; a++) {
