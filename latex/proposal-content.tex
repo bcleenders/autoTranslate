@@ -4,14 +4,17 @@
 \subsection{Problem Statement}
 The project will investigate how to...
 
+There is a lot of language out there :) (incl. several hundred gigabytes of Dutch, and terabytes of English \cite{buck2014n})
+
 \subsection{Prior Work}
+\label{sec:prior_work}
 Since the introduction of word2vec~\cite{mikolov2013efficient, mikolov2013distributed} in 2013, the algorithm has seen a wide variety of usecases. In the initial paper~\cite{mikolov2013efficient}, Mikolov et. al describe interesting relations between vectors corresponding to words. 
 A famous example of how word2vec models relations between words as mathematical equations is $king - man + woman = queen$.
 The sematic relationships between man/woman and king/queen are preserved in the transformation of words to vectors, and can be expressed with basic algebra.
 
 Subsequent papers have improved the algorithm both in terms of accuracy (\cite{levy2014linguistic}), performance, parallelization and extended the initial scope of applications. A good example of the latter is a paper by Boycheva~\cite{boycheva2015distributional}, which uses word2vec not inside the natural language processing domain but to generate playlists. Based on a set of playlists, their word2vec-based algorithm can suggest new playlists with artists that go well together.
 
-One of the applications of word2vec, is in exploiting similarities in languages for assistance in machine translation~\cite{wolf2014joint}. Mikolov et al.~\cite{mikolov2013exploiting} released a subsequent paper on word2vec, in which they describe similarities between models for different languages. An example they give, is how the usage of the numbers one to five in English is very similar to how they are used in Spanish, and likewise for the names of animals. Figure~\ref{fig:english_spanish} shows a graphical representation of word vectors in English and Spanish.
+One of the applications of word2vec, is in exploiting similarities in languages for assistance in machine translation~\cite{wolf2014joint}. Mikolov et al.~\cite{mikolov2013exploiting} released a subsequent paper on word2vec, in which they describe similarities between models of different languages. An example they give, is how the usage of the numbers one to five in English is very similar to the usage in Spanish, and likewise for the names of animals. Figure~\ref{fig:english_spanish} shows a graphical representation of word vectors in English and Spanish.
 
 \begin{figure}[ht!]
   \centering \includegraphics[width=\linewidth]{images/english_spanish}
@@ -25,30 +28,32 @@ In this research, we will focus on this specific application of word2vec: using 
 
 It is important to note that word2vec only uses information of cooccurrences to model words. It does not learn grammatical concepts other than by statistical analysis. This limits our translation to single words; although the translator might be able to translate each word individually, it cannot learn that each finite verb must has a subject, that "we" is plural, etc. It will learn that "swim" is to "swimming" as "walk" is to "walking", but will not know that "swimming" is a gerund.
 
-\section{Research goal}
-\lipsum[66]
-
 \subsection{Research Purpose}
-Abstract description of goals
+This research aims to improve the capabilities of machines to learn translations with minimal human intervention. Previous research~\cite{mikolov2013exploiting, wolf2014joint} has already shown potential for word2vec in the context of automatic translation, as discussed in section~\ref{sec:prior_work}.
 
-\lipsum[66]
+However, we found no practical implementations using Word2Vec and no further research on different setups for word2vec based machine translation.
 
-\subsection{Goals}
-Pretty much what our deliverables are...
+\section{Research goal}
+The goal of this research is to give practical advice on a setup for word2vec based machine translation.
+
+Because we aim at a practical purpose of our research, we will also release all code used in our experiments. We hope this makes our research so trivially reproducible that others will further develop and use our results.
 
 \subsection{Tasks}
-What do we have to do to achieve this?
+To build a test system and perform our experiments, we need to execute the following steps:
+
 \begin{itemize}
-  \item Build (at least) two working setups for automated translation
+  \item Build (at least) two working setups for automated translation:
     \begin{itemize}
-      \item For the single-model setup:
+      \item A single-model setup:
       \begin{itemize}
-        \item Merge datasets, train single model
+        \item Merge datasets, train single model with plain word2vec (easy)
+        \item Build a translator on top of the model using the same relational structure as in the man/woman king/queen example.
       \end{itemize}
-      \item For the multi-model setup:
+      \item A multi-model setup:
       \begin{itemize}
-        \item Train individual models
-        \item Train transformation matrix between models
+        \item Train the individual models
+        \item Train transformation matrix between models, for example using linear regression.
+        \item Build a translator that converts a word to a vector, "translates" the vector and looks up the corresponding word in the other model.
       \end{itemize}
     \end{itemize}
   \item Make a verification mechanism
@@ -97,7 +102,7 @@ For this research, we will look at the following corpora:
     (60GB uncompressed text, >500 million words) Curated corpus gathered by several Dutch universities, consisting of newspapers, subtitles, etc.
 \end{itemize}
 
-These datasets are all open for academic usage, in various degrees of opennes. The Reddit corpus is available over bittorrent, the Wikipedia data is freely available for download under CC-BY-SA license, and SoNaR-500 is available after signing a special research license agreement.
+These datasets are all open for academic usage, in various degrees of opennes. The Reddit corpus is available through their API or with bittorrent, the Wikipedia data is freely available for download under CC-BY-SA license, and SoNaR-500 is available after signing a special research license agreement.
 
 Before processing the corpora with word2vec, we will convert them to a universal format: plain text, with special characters (everything that is not alphanumeric, space or dash) removed, and one entity (post, article or article) per line.
 
