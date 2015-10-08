@@ -82,7 +82,7 @@ Marc pledges to provide sufficient beer. Bram will take care of coffee and possi
 
 \section{Resources}
 \label{sec:resources}
-We have identified three main resources needed for this research: a large English corpus, a large Dutch corpus and computional resources to analyze the data.
+We have identified four main resources needed for this research: a large English corpus, a large Dutch corpus, a large set of word translations from Dutch to English and computional resources to analyze the data.
 
 The corpora for both languages should be several tens of gigabytes or more. Mikolov et al.~\cite{mikolov2013distributed} specifically state that a large amount of training data is crucial for word2vec to build a correct model. They speak of corpora 30 billion words, with a significant decrease in quality of the results when lowering the corpus size to only 6 billion words.
 
@@ -100,6 +100,9 @@ For this research, we will look at the following corpora:
   \item \textit{SoNaR-500} 
     \footnote{\url{http://tst-centrale.org/producten/corpora/sonar-corpus/6-85}}
     (60GB uncompressed text, >500 million words) Curated corpus gathered by several Dutch universities, consisting of newspapers, subtitles, etc.
+  \item \textit{Dutch Parallel Corpus} 
+    \footnote{\url{http://tst-centrale.org/producten/corpora/dutch-parallel-corpus-niet-commercieel/6-65}}
+    (10 million pairs of words Dutch-English.
 \end{itemize}
 
 These datasets are all open for academic usage, in various degrees of opennes. The Reddit corpus is available through their API or with bittorrent, the Wikipedia data is freely available for download under CC-BY-SA license, and SoNaR-500 is available after signing a special research license agreement.
