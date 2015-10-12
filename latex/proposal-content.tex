@@ -12,9 +12,9 @@ Since the introduction of word2vec~\cite{mikolov2013efficient, mikolov2013distri
 A famous example of how word2vec models relations between words as mathematical equations is $king - man + woman = queen$.
 The sematic relationships between man/woman and king/queen are preserved in the transformation of words to vectors, and can be expressed with basic algebra.
 
-Subsequent papers have improved the algorithm both in terms of accuracy (\cite{levy2014linguistic}), performance, parallelization and extended the initial scope of applications. A good example of the latter is a paper by Boycheva~\cite{boycheva2015distributional}, which uses word2vec not inside the natural language processing domain but to generate playlists. Based on a set of playlists, their word2vec-based algorithm can suggest new playlists with artists that go well together.
+Subsequent papers have improved the algorithm both in terms of accuracy (\cite{levy2014linguistic}), performance, parallelization and extended the initial scope of applications. A good example of the latter is a paper by Boycheva~\cite{boycheva2015distributional}, which uses word2vec outside the natural language processing (NLP) domain but to generate playlists. Based on a set of playlists, their word2vec-based algorithm can suggest new playlists with artists that go well together.
 
-One of the applications of word2vec, is in exploiting similarities in languages for assistance in machine translation~\cite{wolf2014joint}. Mikolov et al.~\cite{mikolov2013exploiting} released a subsequent paper on word2vec, in which they describe similarities between models of different languages. An example they give, is how the usage of the numbers one to five in English is very similar to the usage in Spanish, and likewise for the names of animals. Figure~\ref{fig:english_spanish} shows a graphical representation of word vectors in English and Spanish.
+One of the applications of word2vec inside the NLP domain, is exploiting similarities in languages for assistance in machine translation~\cite{wolf2014joint}. Mikolov et al.~\cite{mikolov2013exploiting} released a subsequent paper on word2vec, in which they describe similarities between models of different languages. An example they give, is how the usage of the numbers one to five in English is very similar to the usage in Spanish, and likewise for the names of animals. Figure~\ref{fig:english_spanish} shows a graphical representation of word vectors in English and Spanish.
 
 \begin{figure}[ht!]
   \centering \includegraphics[width=\linewidth]{images/english_spanish}
@@ -22,11 +22,11 @@ One of the applications of word2vec, is in exploiting similarities in languages 
   \label{fig:english_spanish}
 \end{figure}
 
-The similarities between languages can be used to predict translations for words without any human interaction or labeled input data. Using only unsupervised machine learning techniques, a computer could learn how to translate English to Spanish or vice versa. The only requirement is a large amount of text in both languages to train the word2vec models on.
+The similarities between languages can be used to predict translations for words without any human interaction or labeled input data. Using only unsupervised machine learning techniques, a computer could learn how to translate English to for instance Spanish and vice versa. The only requirement is a large amount of text in both languages to train the word2vec models on.
 
 In this research, we will focus on this specific application of word2vec: using similarities in languages to provide translations of words.
 
-It is important to note that word2vec only uses information of cooccurrences to model words. It does not learn grammatical concepts other than by statistical analysis. This limits our translation to single words; although the translator might be able to translate each word individually, it cannot learn that each finite verb must has a subject, that "we" is plural, etc. It will learn that "swim" is to "swimming" as "walk" is to "walking", but will not know that "swimming" is a gerund.
+It is important to note that word2vec only uses information of co-occurrences to model words. It does not learn grammatical concepts other than by statistical analysis. This limits our translation to single words; although the translator might be able to translate each word individually, it cannot learn that each finite verb must has a subject, that "we" is plural, etc. It will learn that "swim" is to "swimming" as "walk" is to "walking", but will not know that "swimming" is a gerund. Note that word2vec can be extended to sentences or whole documents as proposed by Le et al. \cite{le2014distributed} but this will be out of scope for our research.
 
 \subsection{Research Purpose}
 This research aims to improve the capabilities of machines to learn translations with minimal human intervention. Previous research~\cite{mikolov2013exploiting, wolf2014joint} has already shown potential for word2vec in the context of automatic translation, as discussed in section~\ref{sec:prior_work}.
@@ -76,9 +76,7 @@ A global overview of the milestones we defined in our research is as follows;
 \end{description}
 
 \section{Allocation of Responsibilities}
-Marc pledges to provide sufficient beer. Bram will take care of coffee and possibly some Club-Maté.
-
-\todo{write some actual stuff here}
+Since our datasets are too big to be processed on a laptop a cluster is needed. This will be provided by SICS (Swedish Institute of Computes Science \ref{https://www.sics.se/}). Bram will be responsible for downloading and cleaning the different resources of chapter \ref{sec:resources} plus uploading these to the cluster. Marc will be responsible for setting up the virtual machines in the cluster in order to run our experiments. This will involve installing the dependencies for word2vec to be able to run it in a distributed mode. When this is done we will run the experiments together.
 
 \section{Resources}
 \label{sec:resources}
@@ -105,8 +103,8 @@ For this research, we will look at the following corpora:
     (10 million pairs of words Dutch-English.
 \end{itemize}
 
-These datasets are all open for academic usage, in various degrees of opennes. The Reddit corpus is available through their API or with bittorrent, the Wikipedia data is freely available for download under CC-BY-SA license, and SoNaR-500 is available after signing a special research license agreement.
+These datasets are all open for academic usage, in various degrees of opennes. The Reddit corpus is available through their API or with bittorrent, the Wikipedia data is freely available for download under CC-BY-SA license, and both SoNaR-500 and the Dutch Parallel Corpus are available after signing a special research license agreement.
 
 Before processing the corpora with word2vec, we will convert them to a universal format: plain text, with special characters (everything that is not alphanumeric, space or dash) removed, and one entity (post, article or article) per line.
 
-To make our research reproducable, we will publish all our code online and provide lists with hashes of all our input and intermediate steps (e.g. after cleaning the data).
+To make our research reproducible, we will publish all our code online and provide lists with hashes of all our input and intermediate steps (e.g. after cleaning the data).
