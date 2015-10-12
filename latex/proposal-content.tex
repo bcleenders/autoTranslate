@@ -1,10 +1,12 @@
 \section{Introduction}
+The Internet offers a vast amount of natural language that can be used in natural language processing, for a very low price. A study by Buck et al.~\cite{buck2014n} estimated that each of the top 10 most frequently used languages on the internet has at least 250 GiB worth of text publically available online. For English (the most frequent), they even found 23 TiB of text.
 
+Such amounts of text have a big potential to be used for the training of language models, but only if building these models can be done in an unsupervised fashion. Manually curating, marking and tagging text is far too much work to be feasible. With unsupervised algorithms, however, the structure in language can be exploited to let computers build language models.
 
 \subsection{Problem Statement}
-The project will investigate how to...
+This project will focus on unsupervised training of computer models to translate words. Specifically, we focus on the use of word2vec~\cite{mikolov2013efficient} to provide translations.
 
-There is a lot of language out there :) (incl. several hundred gigabytes of Dutch, and terabytes of English \cite{buck2014n})
+Given the large bodies of text publically available, we want to provide automated translations. 
 
 \subsection{Prior Work}
 \label{sec:prior_work}
@@ -76,7 +78,7 @@ A global overview of the milestones we defined in our research is as follows;
 \end{description}
 
 \section{Allocation of Responsibilities}
-Since our datasets are too big to be processed on a laptop a cluster is needed. This will be provided by SICS (Swedish Institute of Computes Science \ref{https://www.sics.se/}). Bram will be responsible for downloading and cleaning the different resources of chapter \ref{sec:resources} plus uploading these to the cluster. Marc will be responsible for setting up the virtual machines in the cluster in order to run our experiments. This will involve installing the dependencies for word2vec to be able to run it in a distributed mode. When this is done we will run the experiments together.
+Since our datasets are too big to be processed on a laptop, a cluster is needed. This will be provided by SICS (Swedish Institute of Computes Science \footnote{\url{http://www.sics.se/}}). Bram will be responsible for downloading and cleaning the different resources of chapter \ref{sec:resources} plus uploading these to the cluster. Marc will be responsible for setting up the virtual machines in the cluster in order to run our experiments. This will involve installing the dependencies for word2vec to be able to run it in a distributed mode. When this is done we will run the experiments together.
 
 \section{Resources}
 \label{sec:resources}
