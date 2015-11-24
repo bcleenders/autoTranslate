@@ -83,7 +83,7 @@ func main() {
 
 	log.Println("Number of readers:", numReaders)
 
-	replacer = strings.NewReplacer( ".", "", ",", "", "[deleted]", "", "\n", "")
+	replacer = strings.NewReplacer(".", "", ",", "", "[deleted]", "", "\n", "")
 
 	// Use the settings!
 	runtime.GOMAXPROCS(runtime.NumCPU())
