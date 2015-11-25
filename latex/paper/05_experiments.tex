@@ -1,3 +1,33 @@
 \section{Experiments}
 \label{sec:experiments}
-What experiments did we run, how did we define a correct translation, etc.
+
+\subsection{Datasets}
+The datasets used to train the word2vec models are freely available online. We used the wikipedia datasets containing a snapshot of all articles on the English and Dutch Wikipedia and a copy of all Reddit comments.
+
+The Go program used for cleaning the Reddit data is published on GitHub\footnote{\gh}. The wikipedia data was parsed with a slightly modified version of Wikipedia Extractor\footnote{\url{https://github.com/bwbaugh/wikipedia-extractor}}, which is also available on our GitHub page.
+
+The characteristics of the cleaned datasets can be seen in table~\ref{table:datasets}.
+
+%
+% Get these statistics with:
+% wc -w <files>		for the wordcount. Do it on the extracted, processed text (i.e. the input for word2vec)
+% Number of items: see end of running wikiextractor.py
+% e.g. INFO: Finished 31-process extraction of 1831031 articles in 11250.7s (162.7 art/s)
+%
+\begin{table}[ht!]
+	\centering
+	\label{table:datasets}
+	\begin{tabular}{|l|c|r|r|}
+	\hline
+	Name																												& Language	& Items			& Words			\\
+	\hline
+	Reddit comments \tablefootnote{\url{http://academictorrents.com/details/7690f71ea949b868080401c749e878f98de34d3d}} 	& English	& 1,325,482,268 & 38,177,224,313\\
+	English Wikipedia \tablefootnote{\url{https://dumps.wikimedia.org/enwiki/20150901/}}								& English	& 4,929,936		& 1,707,791,444	\\
+	Dutch Wikipedia \tablefootnote{\url{https://dumps.wikimedia.org/nlwiki/20150901/}}									& Dutch		& 1,831,031		& 209,095,532	\\
+	\hline
+	\end{tabular}
+	\caption{Dataset statistics. For Wikipedia, "Items" refers to the number of articles. For Reddit, it refers to the number of comments.}
+\end{table}
+
+\subsection{Tests}
+\todo{Marc: explain how we evaluate the output}
