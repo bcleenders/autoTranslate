@@ -6,14 +6,14 @@
 #  Author: Giuseppe Attardi (attardi@di.unipi.it), University of Pisa
 #
 #  Contributors:
-#	Antonio Fuschetto (fuschett@aol.com)
-#	Leonardo Souza (lsouza@amtera.com.br)
-#	Juan Manuel Caicedo (juan@cavorite.com)
-#	Humberto Pereira (begini@gmail.com)
-#	Siegfried-A. Gevatter (siegfried@gevatter.com)
-#	Pedro Assis (pedroh2306@gmail.com)
-#	Wim Muskee (wimmuskee@gmail.com)
-#	Radics Geza (radicsge@gmail.com)
+#   Antonio Fuschetto (fuschett@aol.com)
+#   Leonardo Souza (lsouza@amtera.com.br)
+#   Juan Manuel Caicedo (juan@cavorite.com)
+#   Humberto Pereira (begini@gmail.com)
+#   Siegfried-A. Gevatter (siegfried@gevatter.com)
+#   Pedro Assis (pedroh2306@gmail.com)
+#   Wim Muskee (wimmuskee@gmail.com)
+#   Radics Geza (radicsge@gmail.com)
 #
 # =============================================================================
 #  Copyright (c) 2009-2015. Giuseppe Attardi (attardi@di.unipi.it).
@@ -38,7 +38,7 @@ Extracts and cleans text from a Wikipedia database dump and stores output in a
 number of files of similar size in a given directory.
 Each file will contain several documents in the format:
 
-	<doc id="" url="" title="">
+    <doc id="" url="" title="">
         ...
         </doc>
 
@@ -422,11 +422,11 @@ class Extractor(object):
         self.magicWords['currenttime'] = time.strftime('%H:%M:%S')
         text = clean(self, text)
         footer = "\n</doc>\n"
-        out.write(header)
+        # out.write(header)
         for line in compact(text):
             out.write(line.encode('utf-8'))
             out.write('\n')
-        out.write(footer)
+        # out.write(footer)
         errs = (self.template_title_errs,
                 self.recursion_exceeded_1_errs,
                 self.recursion_exceeded_2_errs,
@@ -663,7 +663,7 @@ class Extractor(object):
         # part-value      = wikitext-L3
         # wikitext-L3     = literal / template / tplarg / link / comment /
         #                   line-eating-comment / unclosed-comment /
-        #		    xmlish-element / *wikitext-L3
+        #           xmlish-element / *wikitext-L3
 
         # A tplarg may contain other parameters as well as templates, e.g.:
         #   {{{text|{{{quote|{{{1|{{error|Error: No text given}}}}}}}}}}}
@@ -1614,7 +1614,7 @@ def replaceInternalLinks(text):
 #                 if '%' in m.group(1):
 #                     m.group(1) = rawurldecode(m.group(1))
 #                 trail = ""
-#             else:		# Invalid form; output directly
+#             else:     # Invalid form; output directly
 #                 s += prefix + '[[' + line
 #                 continue
 
@@ -1647,7 +1647,7 @@ def replaceInternalLinks(text):
 #         ns = nt.getNamespace()
 #         iw = nt.getInterwiki()
 
-#         if might_be_img {	# if this is actually an invalid link
+#         if might_be_img { # if this is actually an invalid link
 #             if (ns == NS_FILE and noforce) { # but might be an image
 #                 found = False
 #                 while True:

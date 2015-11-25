@@ -11,7 +11,15 @@
 
 \usepackage{xcolor}
 \newcommand\todo[1]{\textbf{\textcolor{red}{\uppercase{#1}}}}
+
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+
+% Update this if we change the name of the repo
+\newcommand\gh{\url{https://github.com/bcleenders/autoTranslate}}
+
 \usepackage{hyperref}
+
+\usepackage{tablefootnote}
 
 % Sample text (test layout)
 \usepackage{lipsum}
@@ -72,6 +80,9 @@ Marc Romeyn\\
 \input{04_single_model_translations.tex}
 \input{05_experiments.tex}
 \input{06_results.tex}
+
+\section*{Acknowledgements}
+The authors thank SICS Swedish ICT for the resources they provided.
 
 %References
 \bibliographystyle{abbrv}
