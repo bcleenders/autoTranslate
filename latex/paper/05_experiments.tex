@@ -19,15 +19,22 @@ The characteristics of the cleaned datasets can be seen in table~\ref{table:data
 	\label{table:datasets}
 	\begin{tabular}{|l|c|r|r|}
 	\hline
-	Name																												& Language	& Items			& Words			\\
+	Name																												& Items			& Words			\\
 	\hline
-	Reddit comments \tablefootnote{\url{http://academictorrents.com/details/7690f71ea949b868080401c749e878f98de34d3d}} 	& English	& 1,325,482,268 & 38,177,224,313\\
-	English Wikipedia \tablefootnote{\url{https://dumps.wikimedia.org/enwiki/20150901/}}								& English	& 4,929,936		& 1,707,791,444	\\
-	Dutch Wikipedia \tablefootnote{\url{https://dumps.wikimedia.org/nlwiki/20150901/}}									& Dutch		& 1,831,031		& 209,095,532	\\
+	Reddit comments \tablefootnote{\url{http://academictorrents.com/details/7690f71ea949b868080401c749e878f98de34d3d}} 	& 1,325,482,268 & 38,177,224,313\\
+	English Wikipedia \tablefootnote{\url{https://dumps.wikimedia.org/enwiki/20150901/}}								& 4,929,936		& 1,707,791,444	\\
+	Dutch Wikipedia \tablefootnote{\url{https://dumps.wikimedia.org/nlwiki/20150901/}}									& 1,831,031		& 209,095,532	\\
 	\hline
 	\end{tabular}
 	\caption{Dataset statistics. For Wikipedia, "Items" refers to the number of articles. For Reddit, it refers to the number of comments.}
 \end{table}
 
 \subsection{Tests}
-\todo{Marc: explain how we evaluate the output}
+We tested each translation method in multiple configurations, most notably with different dimensions for the language models.
+
+The accuracy of the translation is measured in percentages how often the algorithm gave the expected answer. To account for answers that are almost correct, we keep the following statistics:
+\begin{itemize}
+	\item \textbf{Accuracy @1}: the algorithm gave the correct answer.
+	\item \textbf{Accuracy @5}: the correct answer was in the top 5 guesses.
+	\item \textbf{Accuracy @10}: the correct answer was in the top 10 guesses.
+\end{itemize}
