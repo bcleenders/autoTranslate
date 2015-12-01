@@ -21,3 +21,10 @@ where $T$ is an $n$ by $n$ matrix, $a_i$ and $b_i$ are $n$ dimensional vector re
 The quality of the translation largely depends on the accuracy of the mapping from vectors in model A to model B. Training language models using word2vec is unsupervised, and can therefore use hundreds of gigabytes or even terabytes of training data. Training the translation matrix is a supervised process (you have to provide correct translations), which makes it impractical to provide more than a few thousand words.
 
 An advantage of using this method, is that it not only provides a word translation but also gives a distance between the translated vector and its nearest neighbour. If this distance is large, it indicates a higher level of uncertainty in the matrix. As such, one can search for potential bad translations and provide targeted training data to improve a next iteration of the model.
+
+\subsection{Training models of different sizes}
+One of the parameters when training word2vec models is the number of dimensions to train on. Typically, the number of dimensions is between 100 and 400\cite{mikolov2013efficient}.
+
+Large datasets contain many relations, and can be trained on high dimensions (400 or more), but small datasets (i.e. under 50 million words) tend to be trained with lower dimensionality. However, these numbers are not set in stone: a study by Pennington et al.~\cite{jeffreypennington2014glove} indicates that 300 dimensions sufficiently capture relations -for their dataset. Since training complexity scales linearly with the number of dimensions, for very large datasets a high dimensionality might even simply be too costly.
+
+Having discussed the cost/benefit of higher dimensions, we remark that translations with multiple models also allows for models trained with a different number of dimensions. If both models have the same dimensions, the translation matrix will be square. If the dimensions are different, one can either use dimensionality reduction on the larger matrix, or use a non-square translation matrix to scale down the dimensionality.
