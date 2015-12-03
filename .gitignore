@@ -10,3 +10,5 @@
 *.out
 *.swp
 *.synctex.gz
+notebook/models
+notebook/data
