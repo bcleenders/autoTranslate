@@ -37,10 +37,3 @@ However, we found no practical implementations using Word2Vec and no further res
 
 \subsection{Outline}
 \todo{Briefly explain structure of paper}
-
-\subsection{Word2Vec}
-Word2Vec is an algorithm that computes vector representations of words based on co-occurrences. The spatial distance between two word-vectors corresponds to word similarity. In order to achieve this there two different algorithms: skip-gram and continuous bag of words (CBOW). Skip-gram is the most popular choice because it scales better to bigger datasets and therefore also chosen for our research. 
-
-Skip-gram model is an method for learning distributed vector representations that capture a large number of syntactic and semantic word relationships \cite{mikolov2013distributed}. Given a a word $w$, the skip-gram model predicts the $n$ neighboring words.
-
-Word2Vec is an example of ''shallow" learning and can be trained as a simple neural network. This neural network has a single hidden layer with no non-linearities and no unsupervised pre-training of layers is needed \cite{wang2014introduction}. 

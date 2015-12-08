@@ -103,13 +103,16 @@ int main(int argc, char **argv)
     b3 = b;
     for (a = 0; a < N; a++) bestd[a] = 0;
     for (a = 0; a < N; a++) bestw[a][0] = 0;
+    // Number of questions seen
     TQ++;
     if (b1 == words) continue;
     if (b2 == words) continue;
     if (b3 == words) continue;
     for (b = 0; b < words; b++) if (!strcmp(&vocab[b * max_w], st4)) break;
     if (b == words) continue;
+    // Calculate the correct output vector
     for (a = 0; a < size; a++) vec[a] = (M[a + b2 * size] - M[a + b1 * size]) + M[a + b3 * size];
+
     TQS++;
     for (c = 0; c < words; c++) {
       if (c == b1) continue;
@@ -118,6 +121,7 @@ int main(int argc, char **argv)
       dist = 0;
       for (a = 0; a < size; a++) dist += vec[a] * M[a + c * size];
       for (a = 0; a < N; a++) {
+        // If there is a word closer
         if (dist > bestd[a]) {
           for (d = N - 1; d > a; d--) {
             bestd[d] = bestd[d - 1];
@@ -133,10 +137,15 @@ int main(int argc, char **argv)
       CCN++;
       CACN++;
       if (QID <= 5) SEAC++; else SYAC++;
+      printf("Correct!");
     }
     if (QID <= 5) SECN++; else SYCN++;
     TCN++;
     TACN++;
+
+    if (TQS % 100 == 0) {
+        printf("Questions seen / total: %d %d   %.2f %% \n", TQS, TQ, TQS/(float)TQ*100);
+    }
   }
   printf("Questions seen / total: %d %d   %.2f %% \n", TQS, TQ, TQS/(float)TQ*100);
   return 0;

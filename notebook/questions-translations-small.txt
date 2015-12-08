@@ -1,0 +1,13 @@
+: just-a-random-category
+ik i je you
+ik i het the
+ik i en and
+ik i wat what
+ik i van from
+: ngram1
+ik i me me
+ik i die which
+ik i heb i
+ik i naar to
+ik i dan than
+ik i jij you
