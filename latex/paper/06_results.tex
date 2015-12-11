@@ -21,6 +21,12 @@ In this section, we use two models: both are trained on the text of the English 
 
 The only difference between the two models is the number of dimensions: one is trained at 100, and the other at 400 dimensions.
 
+\begin{figure}[ht!]
+  \centering \includegraphics[width=\linewidth]{images/accuracy_single_model_wikis}
+  \caption{Accuracy for multi-model translations, trained on Dutch and English wiki. 'x' marks denote dimensionality 400, '+' marks dimensionalty 100.}
+  \label{fig:accuracy_single_model_wikis}
+\end{figure}
+
 \subsubsection{Using Relations}
 The method described in section~\ref{sec:single-model-no-matrix} is tested by randomly selecting 100 translations from our testset of correct translations. These are used as a known translation, to derive other translations from. For each of these translations, we then select 500 different translations to test against. This process is done both for a model trained at 100 dimensions, and one trained at 400 dimensions, and both for Dutch to English and vice versa.
 

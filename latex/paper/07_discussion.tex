@@ -4,7 +4,7 @@ The results for translations using a single table show that the accuracy is lowe
 \begin{itemize}
 \item Words that are spelled the same in both languages, but mean something different, e.g. "beer" (Dutch for bear). Word2vec maps both entities to one token.
 \item Words that are spelled the same in both languages and mean the same, e.g. "wild". If these are used as training data for translation with a single model and no matrix (section~\ref{sec:single-model-no-matrix}), word2vec will think Dutch and English are the same.
-\item Words that translate to more than one word, e.g. "wake"(EN) $\to$ "wakker worden"(NL). Because word2vec splits based on spaces (in our setup), the Dutch has two tokens that together correspond to a single English token. The translation algorithms we described are not sophisticated enough to handle this.
+\item Words that translate to more than one word, e.g. "wake" (EN) $\to$ "wakker worden" (NL). Because word2vec splits based on spaces (in our setup), the Dutch has two tokens that together correspond to a single English token. The translation algorithms we described are not sophisticated enough to handle this.
 \end{itemize}
 
 The accuracy of translations can be improved by targeting these potential problems. The following three solutions address these problems:
