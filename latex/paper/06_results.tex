@@ -21,12 +21,6 @@ In this section, we use two models: both are trained on the text of the English 
 
 The only difference between the two models is the number of dimensions: one is trained at 100, and the other at 400 dimensions.
 
-\begin{figure}[ht!]
-  \centering \includegraphics[width=\linewidth]{images/accuracy_single_model_wikis}
-  \caption{Accuracy for multi-model translations, trained on Dutch and English wiki. 'x' marks denote dimensionality 400, '+' marks dimensionalty 100.}
-  \label{fig:accuracy_single_model_wikis}
-\end{figure}
-
 \subsubsection{Using Relations}
 The method described in section~\ref{sec:single-model-no-matrix} is tested by randomly selecting 100 translations from our testset of correct translations. These are used as a known translation, to derive other translations from. For each of these translations, we then select 500 different translations to test against. This process is done both for a model trained at 100 dimensions, and one trained at 400 dimensions, and both for Dutch to English and vice versa.
 
@@ -56,4 +50,12 @@ Table~\ref{table:results_single_model_no_matrix} shows the results of these expe
 An interesting note (which is not shown in the table), is that for every scenario, the lowest percentage of correct translations is 0.00\%. This means that there are some very bad base translations. In the next section, we will give some reasons what may cause this.
 
 \subsubsection{Using Translation Matrix}
-\todo{repeat experiment from multi model section, but use bothwiki 100 and bothwiki 400 as language models}
+Check figure \ref{fig:accuracy_single_model_wikis} for the results.
+
+Again: weird dip towards the end. \todo{Marc, do you know why? Just bad luck choosing test samples?}
+
+\begin{figure}[ht!]
+  \centering \includegraphics[width=\linewidth]{images/accuracy_single_model_wikis}
+  \caption{Accuracy for multi-model translations, trained on Dutch and English wiki. 'x' marks denote dimensionality 400, '+' marks dimensionalty 100.}
+  \label{fig:accuracy_single_model_wikis}
+\end{figure}
