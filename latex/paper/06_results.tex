@@ -1,27 +1,50 @@
 \section{Results}
 \label{sec:results}
 
-\todo{Add more results (matter of running more experiments, mostly)}
-
 \subsection{Multi-model Translations}
-Figure~\ref{fig:accuracy_multi_model_wikis} shows the accuracy of the multi-model translations, both for models trained on 100 and 400 dimensions. We used the same training set of translations to train the matrix on, and both language models are trained on respectively the Dutch and English Wikipedia.
+Figure~\ref{fig:sm_100} (resp.~\ref{fig:sm_400}) shows the accuracy of the multi-model translations, for models trained on 100 (resp. 400) dimensions.
 
-An interesting observation is that the accuracy at all levels (top 1, top 5 and top 10) starts off lower for models trained at 400 dimensions. However, at the biggest training set, each level is better than the corresponding level at 100 dimensions. This suggests a form of overfitting; the translation matrix might be overfitted on the translation samples.
+An interesting observation is that the accuracy at all levels (top 1, top 5 and top 10) starts off lower for models trained at 400 dimensions. However, at the biggest training set (2900 training pairs), the accuracy is better at all three levels, compared to the corresponding levels at 100 dimensions.
 
-\todo{There's also a dip towards the end. Check if that's still there if we run it with differently split test/training data sets.}
+\begin{figure*}[!htb]
+    \centering
+    \begin{minipage}{\textwidth}
+      \centering
+      \begin{minipage}{0.45\linewidth}
+          \includegraphics[width=\linewidth]{images/single_model_100_dim}
+          \caption{Single model, 100 dimensions}
+          \label{fig:sm_100}
+      \end{minipage}
+      \begin{minipage}{0.45\linewidth}
+          \includegraphics[width=\linewidth]{images/single_model_400_dim}
+          \caption{Single model, 400 dimensions}
+          \label{fig:sm_400}
+      \end{minipage}
+    \end{minipage}
+    
+    \vspace{8mm}
 
-\begin{figure}[ht!]
-  \centering \includegraphics[width=\linewidth]{images/accuracy_multi_model_wikis}
-  \caption{Accuracy for multi-model translations, trained on Dutch and English wiki. 'x' marks denote dimensionality 400, '+' marks dimensionalty 100.}
-  \label{fig:accuracy_multi_model_wikis}
-\end{figure}
+    \begin{minipage}{\textwidth}
+      \centering
+      \begin{minipage}{.45\textwidth}
+          \includegraphics[width=\linewidth]{images/multiple_model_100_dim}
+          \caption{Multiple models, 100 dimensions}
+          \label{fig:mm_100}
+      \end{minipage}
+      \begin{minipage}{.45\textwidth}
+          \includegraphics[width=\linewidth]{images/multiple_model_400_dim}
+          \caption{Multiple models, 400 dimensions}
+          \label{fig:mm_400}
+      \end{minipage}
+    \end{minipage}
+\end{figure*}
 
 \subsection{Single-model Translations}
 In this section, we use two models: both are trained on the text of the English Wikipedia and the Dutch Wikipedia combined. Since the Dutch Wikipedia is much smaller than its English counterpart (by a factor of 8, see table~\ref{table:datasets}), we ran it eight times over the Dutch text. This artificially increases the weight given to Dutch text, so both are equally well represented.
 
 The only difference between the two models is the number of dimensions: one is trained at 100, and the other at 400 dimensions.
 
-\subsubsection{Using Relations}
+\subsubsection{Single Model Using Single Relation}
 The method described in section~\ref{sec:single-model-no-matrix} is tested by randomly selecting 100 translations from our testset of correct translations. These are used as a known translation, to derive other translations from. For each of these translations, we then select 500 different translations to test against. This process is done both for a model trained at 100 dimensions, and one trained at 400 dimensions, and both for Dutch to English and vice versa.
 
 For example, given "koning $\to$ king" as base pair, we then test whether the algorithm can translate "koningin" to "queen", "kopen" to "buy", et cetera.
@@ -49,15 +72,20 @@ Table~\ref{table:results_single_model_no_matrix} shows the results of these expe
 
 An important note (which is not shown in the table), is that for every scenario, the lowest percentage of correct translations is 0.00\%. This means that there are some very bad base translations. In the next section, we will give some reasons what may cause this.
 
-Overall, we can clearly see that this algorithm does not give good results. The best accuracy is below 25\%, compared to about 75\% for the multi-model algorithm.
+Overall, we can clearly see that this algorithm does not give good results. The best accuracy is below 25\%, compared to almost 75\% for algorithms using a translation matrix.
 
-\subsubsection{Using Translation Matrix}
-The single-model algorithm with translation matrix is tested exactly the same as the multi-model version. The results of the experiments are plotted in figure~\ref{fig:accuracy_single_model_wikis}
+\subsubsection{Single Model Using Translation Matrix}
+The single-model algorithm with translation matrix is tested exactly the same as the multi-model version. The results of the experiments are plotted in figure~\ref{fig:sm_100} and~\ref{fig:sm_400}.
 
-\todo{Note that it's higher/lower}
+Note that both for the 100 and 400 dimensional models, the level of accuracy is significantly higher than for the translations using multiple models.
 
-\begin{figure}[ht!]
-  \centering \includegraphics[width=\linewidth]{images/accuracy_single_model_wikis}
-  \caption{Accuracy for single-model translations, trained on Dutch and English wiki. 'x' marks denote dimensionality 400, '+' marks dimensionalty 100.}
-  \label{fig:accuracy_single_model_wikis}
-\end{figure}
+% \begin{figure}[ht!]
+%   \centering \includegraphics[width=\linewidth]{images/accuracy_multi_model_wikis}
+%   \caption{Accuracy for multi-model translations, trained on Dutch and English wiki. 'x' marks denote dimensionality 400, '+' marks dimensionalty 100.}
+%   \label{fig:accuracy_multi_model_wikis}
+% \end{figure}
+% \begin{figure}[ht!]
+%   \centering \includegraphics[width=\linewidth]{images/accuracy_single_model_wikis}
+%   \caption{Accuracy for single-model translations, trained on Dutch and English wiki. 'x' marks denote dimensionality 400, '+' marks dimensionalty 100.}
+%   \label{fig:accuracy_single_model_wikis}
+% \end{figure}

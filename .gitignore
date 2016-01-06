@@ -10,5 +10,6 @@
 *.out
 *.swp
 *.synctex.gz
+*.pyc
 notebook/models
 notebook/data
