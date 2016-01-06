@@ -1,6 +1,7 @@
 \section{Discussion}
 \label{sec:discussion}
-The results for translations using a single model and a translation matrix show that the accuracy is lower than what we might expect. One reason for this, is that it is not possible to provide a one-to-one mapping from one language to another. In particular, there is no one-to-one mapping for:
+
+The results for translations using a single table show that the accuracy is lower than what we might expect. One reason for this, is that it is difficult to provide a one-to-one mapping from one language to another. This especially goes for:
 \begin{itemize}
 \item Homonyms: words that have different meanings in one language, e.g. "left" is both the opposite of right and past tense of to leave.
 \item Words that are spelled the same in both languages, but mean something different, e.g. "beer" (Dutch for bear). Word2vec maps both entities to one token.
