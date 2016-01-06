@@ -2,6 +2,10 @@
 \label{sec:single-model-translations}
 
 \subsection{Translation using Relations}
+<<<<<<< HEAD
+=======
+\label{sec:single-model-no-matrix}
+>>>>>>> ec439167716fa22c78368379bf9570f1a966101d
 As a simplest form of translation, one could say that "king" is to "koning" (the Dutch word for king) as "queen" is to "koninging" (Dutch for queen). Intuitively, this means we consider relations between two languages, instead of relations within a single language.
 
 Thus, if we train a single model with two languages in it, one could expect to find these relations and use them to translate Dutch to English and vice versa.
@@ -11,6 +15,13 @@ This method is so simplistic, we do not expect it to give good translations. The
 Despite our doubts about its effectiveness, we choose to include this method as a baseline for performance and simplicity. Any more complex method performing not at least as good as this is not worth the additional complexity.
 
 \subsection{Translation matrix in single space}
+<<<<<<< HEAD
 A mix between the two methods described above is using a single model trained on multiple languages (as in the previous section), but using a translation matrix (as in section~\ref{sec:multi-model-translations}).
 
 This method would allow the language model to be trained without having to take into account the languages it is being trained on. As such, one could feed it text without determining the language that text is written in.
+=======
+\label{sec:single-model-with-matrix}
+A mix between the two methods described above is using a single model trained on multiple languages (as in the previous section), but using a translation matrix (as in section~\ref{sec:multi-model-translations}).
+
+This method would allow the language model to be trained without having to take into account the languages it is being trained on. As such, one could feed it text without determining the language that text is written in. This is a significant advantage for applications where the input is unlabelled.
+>>>>>>> ec439167716fa22c78368379bf9570f1a966101d

@@ -1,5 +1,6 @@
 \section{Discussion}
 \label{sec:discussion}
+<<<<<<< HEAD
 
 \subsection{Improvements}
 \begin{itemize}
@@ -7,3 +8,21 @@
 \item Use word2phrase to combine "San Fransisco" into a single word.
 \item Handle ambiguous translations better (i.e. "bank" in Dutch can be either "couch" or "bank" in English). More research can be done in the exact implementation for this.
 \end{itemize}
+=======
+The results for translations using a single table show that the accuracy is lower than what we might expect. One reason for this, is that it is difficult to provide a one-to-one mapping from one language to another. This especially goes for:
+\begin{itemize}
+\item Words that are spelled the same in both languages, but mean something different, e.g. "beer" (Dutch for bear). Word2vec maps both entities to one token.
+\item Words that are spelled the same in both languages and mean the same, e.g. "wild". If these are used as training data for translation with a single model and no matrix (section~\ref{sec:single-model-no-matrix}), word2vec will think Dutch and English are the same.
+\item Words that translate to more than one word, e.g. "wake" (EN) $\to$ "wakker worden" (NL). Because word2vec splits based on spaces (in our setup), the Dutch has two tokens that together correspond to a single English token. The translation algorithms we described are not sophisticated enough to handle this.
+\end{itemize}
+
+The accuracy of translations can be improved by targeting these potential problems. The following three solutions address these problems:
+
+\begin{itemize}
+\item Label words in training data with their language (e.g. "nl\_koning", "en\_king") to distinguish words spelled the same, but with a different language. By labelling words, there can be no collision between English and Dutch tokens. One can, however, still say that words that are spelled the same are likely to be translations, and use this as prior knowledge (i.e. proper nouns are usually spelled the same in various languages).
+\item Use word2phrase to combine fixed combinations of words into a single token (e.g. "San Francisco" should be one token). This way we can extract more information out of a cooccurence of two tokens, and possibly even cope with combinations like "lopen" $\to$ "to walk".
+\item Handle ambiguous translations better (e.g. the English homonym "arm" translates the Dutch words "wapen" or "arm"). This requires understanding of the context, which we think is more complicated and outside the scope of word2vec.
+\end{itemize}
+
+The first two should be relatively easy to implement, but the third one would be quite difficult. Instead, a deep neural network may be worth consideration to provide the flexibility to handle the full complexity in language.
+>>>>>>> ec439167716fa22c78368379bf9570f1a966101d

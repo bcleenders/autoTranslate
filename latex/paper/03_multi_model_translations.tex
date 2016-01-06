@@ -12,7 +12,11 @@ The last step is to convert the "translated" vector representation back to a wor
 \subsection{Training the Models}
 This way of translation requires three models: word2vec models for both language A and B and a translation matrix from A to B.
 
+<<<<<<< HEAD
 The two language models are trained using the default word2vec algorithm. We refer to previous papers for the specifics on this \cite{mikolov2013efficient, mikolov2013distributed}.
+=======
+The two language models are trained using the default word2vec algorithm. We refer to section~\ref{sec:word2vec} and previous papers for the specifics on this \cite{mikolov2013efficient, mikolov2013distributed}.
+>>>>>>> ec439167716fa22c78368379bf9570f1a966101d
 
 The translation matrix is trained by solving the following expression:
 $$ \argmin_{T} \Sigma_{i=1}^{n} || T \cdot a_i - b_i || ^{2}$$
@@ -20,7 +24,11 @@ where $T$ is an $n$ by $n$ matrix, $a_i$ and $b_i$ are $n$ dimensional vector re
 
 The quality of the translation largely depends on the accuracy of the mapping from vectors in model A to model B. Training language models using word2vec is unsupervised, and can therefore use hundreds of gigabytes or even terabytes of training data. Training the translation matrix is a supervised process (you have to provide correct translations), which makes it impractical to provide more than a few thousand words.
 
+<<<<<<< HEAD
 An advantage of using this method, is that it not only provides a word translation but also gives a distance between the translated vector and its nearest neighbour. If this distance is large, it indicates a higher level of uncertainty in the matrix. As such, one can search for potential bad translations and provide targeted training data to improve a next iteration of the model.
+=======
+An advantage of using this method, is that it not only provides a word translation but also gives a distance between the translated vector and its nearest neighbour. If this distance is large, it indicates a higher level of uncertainty in the matrix. As such, one can search for translations where the algorithm is unsure what to choose and provide targeted training data to improve a next iteration of the model.
+>>>>>>> ec439167716fa22c78368379bf9570f1a966101d
 
 \subsection{Training models of different sizes}
 One of the parameters when training word2vec models is the number of dimensions to train on. Typically, the number of dimensions is between 100 and 400\cite{mikolov2013efficient}.
