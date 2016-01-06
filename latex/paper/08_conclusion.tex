@@ -1,3 +1,12 @@
 \section{Conclusion}
-\todo{Method X is best. Refer to section~\ref{sec:discussion} for further improvements.}
-section~\ref{sec:discussion}
+We have presented three strategies for unsupervised machine translation, with varying degrees of complexity.
+
+The simplest approach (section~\ref{sec:single-model-no-matrix}, which does not use a translation matrix, was very easy to train but did not yield very good results. The algorithm has limitations which are difficult to overcome in this setup, such as being unable to differentiate between words from two languages that are spelled the same. As such, we deem it unusable for real implementations, but it can be interesting to demonstrate how a computer can learn from unstructured data.
+
+The second method (secion~\ref{sec:single-model-with-matrix}) uses a translation matrix and a single word2vec model trained on both the source and target language. The only structured data is a list of example translations to train the translation matrix on. Our tests indicate that the amount of example translations can be quite low (in the order of several hundreds to a few thousand) and still yield good results (almost >60\% completely correct, and almost 80\% almost correct).
+
+The most advanced method we tested is described by Mikolov et al.~\cite{mikolov2013exploiting}, and uses two word2vec models and a translation matrix. \todo{include latest test results}
+
+The two simplified algorithms suffer from some problems that we describe in section~\ref{sec:discussion}. To summarize the problems; the translation algorithm assumes a one-to-one mapping of source to target language. However, homonyms and word combinations (e.g. a verb and proposition, like "to look at" and names like "San Francisco") require context and grouping of words to translate.
+
+We advise readers to use Mikolov et al.'s algorithm for translations. It easily outperforms the simplest approach, even with a very small training set for the translation matrix. The added complexity compared to using a single 

@@ -40,3 +40,5 @@ The accuracy of the translation is measured in percentages how often the algorit
 \end{itemize}
 
 If the answer is in the top 5 it is likely to be a synonym or very related word, since word2vec tends to group words by meaning. For example, the translation may be "buy" or "acquire" where the correct translation is "purchase".
+
+Each test is repeated 10 times with a randomly chosen training and test dataset to provide cross-validation. The results given in the next section are the averages of the tests.

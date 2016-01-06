@@ -47,15 +47,17 @@ Table~\ref{table:results_single_model_no_matrix} shows the results of these expe
   \caption{Translation accuracy, using a single model without translation matrix and 400 dimensions. The minimum is left out, because it is 0.00\% for all scenarios.}
 \end{table}
 
-An interesting note (which is not shown in the table), is that for every scenario, the lowest percentage of correct translations is 0.00\%. This means that there are some very bad base translations. In the next section, we will give some reasons what may cause this.
+An important note (which is not shown in the table), is that for every scenario, the lowest percentage of correct translations is 0.00\%. This means that there are some very bad base translations. In the next section, we will give some reasons what may cause this.
+
+Overall, we can clearly see that this algorithm does not give good results. The best accuracy is below 25\%, compared to about 75\% for the multi-model algorithm.
 
 \subsubsection{Using Translation Matrix}
-Check figure \ref{fig:accuracy_single_model_wikis} for the results.
+The single-model algorithm with translation matrix is tested exactly the same as the multi-model version. The results of the experiments are plotted in figure~\ref{fig:accuracy_single_model_wikis}
 
-Again: weird dip towards the end. \todo{Marc, do you know why? Just bad luck choosing test samples?}
+\todo{Note that it's higher/lower}
 
 \begin{figure}[ht!]
   \centering \includegraphics[width=\linewidth]{images/accuracy_single_model_wikis}
-  \caption{Accuracy for multi-model translations, trained on Dutch and English wiki. 'x' marks denote dimensionality 400, '+' marks dimensionalty 100.}
+  \caption{Accuracy for single-model translations, trained on Dutch and English wiki. 'x' marks denote dimensionality 400, '+' marks dimensionalty 100.}
   \label{fig:accuracy_single_model_wikis}
 \end{figure}

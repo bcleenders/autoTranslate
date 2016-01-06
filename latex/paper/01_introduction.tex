@@ -14,7 +14,7 @@ Since the introduction of word2vec~\cite{mikolov2013efficient, mikolov2013distri
 A famous example of how word2vec models relations between words as mathematical equations is $king - man + woman = queen$.
 The sematic relationships between man/woman and king/queen are preserved in the transformation of words to vectors, and can be expressed with basic algebra.
 
-Subsequent papers have improved the algorithm both in terms of accuracy (\cite{levy2014linguistic}), performance, parallelization and extended the initial scope of applications. A good example of the latter is a paper by Boycheva~\cite{boycheva2015distributional}, which uses word2vec outside the natural language processing (NLP) domain but to generate playlists. Based on a set of playlists, their word2vec-based algorithm can suggest new playlists with artists that go well together.
+Subsequent papers have improved the algorithm both in terms of accuracy (e.g. Levy et al.\cite{levy2014linguistic}), performance, parallelization and extended the initial scope of applications. A good example of the latter is a paper by Boycheva~\cite{boycheva2015distributional}, which uses word2vec outside the natural language processing (NLP) domain but to generate playlists. Based on a set of playlists, their word2vec-based algorithm can suggest new playlists with artists that go well together.
 
 One of the applications of word2vec inside the NLP domain, is exploiting similarities in languages for assistance in machine translation~\cite{wolf2014joint}. Mikolov et al.~\cite{mikolov2013exploiting} released a subsequent paper on word2vec, in which they describe similarities between models of different languages. An example they give, is how the usage of the numbers one to five in English is very similar to the usage in Spanish, and likewise for the names of animals. Figure~\ref{fig:english_spanish} shows a graphical representation of word vectors in English and Spanish.
 
@@ -36,4 +36,4 @@ This research aims to improve the capabilities of machines to learn translations
 However, we found no practical implementations using Word2Vec and no further research on different setups for word2vec based machine translation.
 
 \subsection{Outline}
-\todo{Briefly explain structure of paper}
+We first give a brief summary of word2vec in section~\ref{sec:word2vec}. We then describe three different algorithms for machine translation: one using multiple word2vec models (section~\ref{sec:multi-model-translations}) and two using a single word2vec model (section~\ref{sec:single-model-translations}). In section~\ref{sec:experiments} we describe how the algorithms are tested, and the results of these experiments are in section~\ref{sec:results}. The results are discussed in section~\ref{sec:discussion}.
