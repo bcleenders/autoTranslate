@@ -7,18 +7,18 @@ Given a word in language A that we want to translate to language B, the first st
 
 Translating is now a matter of mapping vector representations from model A to corresponding vectors in model B. We do this by multiplying the vector with a translation matrix, which gives an expected vector in model B.
 
-The last step is to convert the "translated" vector representation back to a word. We do this by looking up which word in language B which has the vector representation closest to the translated vector. The criterium used for this is simply nearest neighbour with a Euclidean distance.
+The last step is to convert the "translated" vector representation back to a word. We do this by looking up which word in language B has the vector representation closest to the translated vector. The criterium used for this is simply nearest neighbour with a Euclidean distance. The resulting word is the expected translation of the original input.
 
 \subsection{Training the Models}
 This way of translation requires three models: word2vec models for both language A and B and a translation matrix from A to B.
 
-The two language models are trained using the default word2vec algorithm. We refer to section~\ref{sec:word2vec} and previous papers for the specifics on this \cite{mikolov2013efficient, mikolov2013distributed}.
+The two language models are trained using the default word2vec algorithm (skip-gram). We refer to section~\ref{sec:word2vec} and previous papers for the specifics on this \cite{mikolov2013efficient, mikolov2013distributed}.
 
 The translation matrix is trained by solving the following expression:
 $$ \argmin_{T} \Sigma_{i=1}^{n} || T \cdot a_i - b_i || ^{2}$$
 where $T$ is an $n$ by $n$ matrix, $a_i$ and $b_i$ are $n$ dimensional vector representations of words in languages A and B, such that $b_i$ is the translation of $a_i$.
 
-The quality of the translation largely depends on the accuracy of the mapping from vectors in model A to model B. Training language models using word2vec is unsupervised, and can therefore use hundreds of gigabytes or even terabytes of training data. Training the translation matrix is a supervised process (you have to provide correct translations), which makes it impractical to provide more than a few thousand words.
+The quality of the translation largely depends on the accuracy of the mapping from vectors in model A to model B. Training language models using word2vec is unsupervised, and can therefore use hundreds of gigabytes or even terabytes of training data. Training the translation matrix is a supervised process (you have to provide correct translations), which makes it impractical to provide more than a few thousand words as training data.
 
 An advantage of using this method, is that it not only provides a word translation but also gives a distance between the translated vector and its nearest neighbour. If this distance is large, it indicates a higher level of uncertainty in the matrix. As such, one can search for translations where the algorithm is unsure what to choose and provide targeted training data to improve a next iteration of the model.
 

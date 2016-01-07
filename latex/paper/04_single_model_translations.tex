@@ -9,10 +9,10 @@ Thus, if we train a single model with two languages in it, one could expect to f
 
 This method is so simplistic, we do not expect it to give good translations. There is no guarantee the trained model models the Dutch-English relation in a consistent manner. A proper English sentence will not contain the word "koning", since it is not an English word. As such, it will be difficult (if not impossible) for word2vec to learn that "koning" and "king" are related.
 
-Despite our doubts about its effectiveness, we choose to include this method as a baseline for performance and simplicity. Any more complex method performing not at least as good as this is not worth the additional complexity.
+Despite our skepticism about its effectiveness, we choose to include this method as a baseline for performance and simplicity. Any more complex method performing not at least as good as this is not worth the additional complexity.
 
 \subsection{Translation matrix in single space}
 \label{sec:single-model-with-matrix}
 A mix between the two methods described above is using a single model trained on multiple languages (as in the previous section), but using a translation matrix (as in section~\ref{sec:multi-model-translations}).
 
-This method would allow the language model to be trained without having to take into account the languages it is being trained on. As such, one could feed it text without determining the language that text is written in. This is a significant advantage for applications where the input is unlabelled.
+This method allows the language model to be trained without having to take into account the languages it is being trained on. As such, one could feed it text without determining the language that text is written in. This is a significant advantage for applications where the input is unlabelled, for example web crawls.

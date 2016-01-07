@@ -4,7 +4,7 @@
 \subsection{Datasets}
 The datasets used to train the word2vec models are freely available online. We used the wikipedia datasets containing a snapshot of all articles on the English and Dutch Wikipedia and a copy of all Reddit comments.
 
-The Go program used for cleaning the Reddit data is published on GitHub\footnote{\gh}. The wikipedia data was parsed with a slightly modified version of Wikipedia Extractor\footnote{\url{https://github.com/bwbaugh/wikipedia-extractor}}, which is also available on our GitHub page.
+The Go program used for cleaning the Reddit data is published on GitHub\footnote{\gh}. The wikipedia data was parsed with a slightly modified version of Wikipedia Extractor\footnote{\url{https://github.com/bwbaugh/wikipedia-extractor}}, which is also available on our GitHub page. All non-alphanumeric characters are removed, all diacritics are removed (i.e. \'e, \"e and \^e become e).
 
 The characteristics of the cleaned datasets can be seen in table~\ref{table:datasets}.
 
